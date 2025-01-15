@@ -57,7 +57,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/TEST')]",
+			"name": "[concat(parameters('factoryName'), '/SRC_TEST')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -196,7 +196,7 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "TEST",
+								"referenceName": "SRC_TEST",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -216,7 +216,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/TEST')]",
+				"[concat(variables('factoryId'), '/datasets/SRC_TEST')]",
 				"[concat(variables('factoryId'), '/datasets/TGT_TEST')]"
 			]
 		}
