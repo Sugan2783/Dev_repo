@@ -49,7 +49,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "TEST",
+						"referenceName": "SRC_TEST",
 						"type": "DatasetReference"
 					}
 				],
