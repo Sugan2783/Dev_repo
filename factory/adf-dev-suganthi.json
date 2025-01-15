@@ -1,0 +1,9 @@
+{
+	"name": "adf-dev-suganthi",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "6c1fcfeb-e05d-41fb-a0fc-ff0848ef14cf",
+		"tenantId": "7cab9538-efe8-4dfb-bc5f-095c2b850a43"
+	}
+}
