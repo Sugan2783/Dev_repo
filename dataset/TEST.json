@@ -1,0 +1,53 @@
+{
+	"name": "TEST",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DevStorageLinkService",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "STG_CUSTOMERS.csv",
+				"folderPath": "Input",
+				"fileSystem": "data"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Customer_Id",
+				"type": "String"
+			},
+			{
+				"name": "Customer_First_Name",
+				"type": "String"
+			},
+			{
+				"name": "Customer_Last_Name",
+				"type": "String"
+			},
+			{
+				"name": "Customer_DOB",
+				"type": "String"
+			},
+			{
+				"name": "Customer_Type",
+				"type": "String"
+			},
+			{
+				"name": "Is_Loyal",
+				"type": "String"
+			},
+			{
+				"name": "First_Purchase_Date",
+				"type": "String"
+			}
+		]
+	}
+}
