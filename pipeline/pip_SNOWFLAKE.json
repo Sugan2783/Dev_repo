@@ -48,7 +48,14 @@
 				"outputs": [
 					{
 						"referenceName": "SNOWFLAKE_PARAM",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"SCHEMA_NAME": "CLAIMS",
+							"TABLE_NAME": {
+								"value": " ",
+								"type": "Expression"
+							}
+						}
 					}
 				]
 			}
