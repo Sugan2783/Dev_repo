@@ -45,7 +45,15 @@
 				"inputs": [
 					{
 						"referenceName": "BLOB_PARAM",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"CONTAINER": "landing",
+							"FOLDER_NAME": {
+								"value": " ",
+								"type": "Expression"
+							},
+							"FILE_NAME": "EMPLOYEES.csv"
+						}
 					}
 				],
 				"outputs": [
