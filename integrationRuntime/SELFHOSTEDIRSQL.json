@@ -1,0 +1,12 @@
+{
+	"name": "SELFHOSTEDIRSQL",
+	"properties": {
+		"type": "SelfHosted",
+		"typeProperties": {
+			"linkedInfo": {
+				"resourceId": "/subscriptions/6cda72ae-09db-4ac7-a49f-757ca002a156/resourcegroups/SUGANTHI_RGROUP/providers/Microsoft.DataFactory/factories/suganthidfactory/integrationruntimes/SELFHOSTEDIR",
+				"authorizationType": "Rbac"
+			}
+		}
+	}
+}
