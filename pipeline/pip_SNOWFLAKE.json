@@ -18,7 +18,7 @@
 					"source": {
 						"type": "DelimitedTextSource",
 						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
+							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
 							"enablePartitionDiscovery": false
 						},
@@ -35,7 +35,7 @@
 					"enableStaging": true,
 					"stagingSettings": {
 						"linkedServiceName": {
-							"referenceName": "DevStorageLinkService",
+							"referenceName": "AzureBlobStorage1",
 							"type": "LinkedServiceReference"
 						},
 						"path": "data/Output",
@@ -44,16 +44,8 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "BLOB_PARAM",
-						"type": "DatasetReference",
-						"parameters": {
-							"CONTAINER": "landing",
-							"FOLDER_NAME": {
-								"value": " ",
-								"type": "Expression"
-							},
-							"FILE_NAME": "EMPLOYEES.csv"
-						}
+						"referenceName": "ADLS_PARAM",
+						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
