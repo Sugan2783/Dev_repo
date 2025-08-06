@@ -18,7 +18,7 @@
 					"source": {
 						"type": "DelimitedTextSource",
 						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
+							"type": "AzureBlobStorageReadSettings",
 							"recursive": true,
 							"enablePartitionDiscovery": false
 						},
@@ -44,16 +44,8 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "ADLS_PARAM",
-						"type": "DatasetReference",
-						"parameters": {
-							"CONTAINER": "landing",
-							"FOLDER": {
-								"value": " ",
-								"type": "Expression"
-							},
-							"FILENAME": "EMPLOYEES.csv"
-						}
+						"referenceName": "BLOB",
+						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
