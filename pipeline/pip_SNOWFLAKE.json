@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "BLOB to SNOWFLAKE",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -62,10 +62,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"SCHEMA_NAME": "CLAIMS",
-							"TABLE_NAME": {
-								"value": " ",
-								"type": "Expression"
-							}
+							"TABLE_NAME": "EMPLOYEES"
 						}
 					}
 				]
