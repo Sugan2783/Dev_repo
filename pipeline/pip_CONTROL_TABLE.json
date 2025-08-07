@@ -68,6 +68,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "select * from @{item().SOURCE_SCHEMA}.@{item().SOURCE_TABLE} where claim_date > '@{item().LAST_MODIFIED_DATE}'",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
@@ -113,8 +117,14 @@
 									"referenceName": "ADLS_PARAM",
 									"type": "DatasetReference",
 									"parameters": {
-										"CONTAINER": "data",
-										"FOLDER": "Input",
+										"CONTAINER": {
+											"value": "@pipeline().parameters.p_CONTAINER",
+											"type": "Expression"
+										},
+										"FOLDER": {
+											"value": "@pipeline().parameters.p_FOLDER",
+											"type": "Expression"
+										},
 										"FILENAME": {
 											"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
 											"type": "Expression"
@@ -174,8 +184,14 @@
 									"referenceName": "ADLS_PARAM",
 									"type": "DatasetReference",
 									"parameters": {
-										"CONTAINER": "data",
-										"FOLDER": "Input",
+										"CONTAINER": {
+											"value": "@pipeline().parameters.p_CONTAINER",
+											"type": "Expression"
+										},
+										"FOLDER": {
+											"value": "@pipeline().parameters.p_FOLDER",
+											"type": "Expression"
+										},
 										"FILENAME": {
 											"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
 											"type": "Expression"
@@ -224,6 +240,14 @@
 			"p_ACTIVE_FLAG": {
 				"type": "string",
 				"defaultValue": "'Y'"
+			},
+			"p_CONTAINER": {
+				"type": "string",
+				"defaultValue": "data"
+			},
+			"p_FOLDER": {
+				"type": "string",
+				"defaultValue": "Input"
 			}
 		},
 		"annotations": []
