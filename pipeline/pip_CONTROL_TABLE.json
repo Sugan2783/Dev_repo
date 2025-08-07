@@ -18,7 +18,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select * from md.control_table where load_type = 'FULL' and is_active_ind = 'Y'",
+							"value": "select * from md.control_table where load_type = 'INCRE' and is_active_ind = 'Y'",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
