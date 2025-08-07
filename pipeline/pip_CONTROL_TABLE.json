@@ -244,7 +244,7 @@
 									{
 										"type": "Query",
 										"text": {
-											"value": "UPDATE @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} SET LAST_MODIFIED_DATE = @{utcNow()}",
+											"value": "UPDATE @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} SET LAST_MODIFIED_DATE = @{formatDateTime(utcNow(),'yyyy-MM-dd')}",
 											"type": "Expression"
 										}
 									}
