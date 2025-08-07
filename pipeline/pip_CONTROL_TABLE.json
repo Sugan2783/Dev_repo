@@ -116,7 +116,7 @@
 										"CONTAINER": "data",
 										"FOLDER": "Input",
 										"FILENAME": {
-											"value": "@concat(item().TABLE_NAME,'.csv')",
+											"value": "@concat(item().SCHEMA_NAME,'_',item().TABLE_NAME,'.csv')",
 											"type": "Expression"
 										}
 									}
