@@ -111,7 +111,15 @@
 							"outputs": [
 								{
 									"referenceName": "ADLS_PARAM",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"CONTAINER": "data",
+										"FOLDER": "Input",
+										"FILENAME": {
+											"value": "@concat(item().TABLE_NAME,'.csv')",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						}
