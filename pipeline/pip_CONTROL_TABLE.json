@@ -134,7 +134,7 @@
 							]
 						},
 						{
-							"name": "Copy data1",
+							"name": "SQL TO ADLS",
 							"type": "Copy",
 							"dependsOn": [
 								{
