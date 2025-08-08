@@ -17,69 +17,45 @@
 		"type": "SnowflakeV2Table",
 		"schema": [
 			{
-				"name": "EMPLOYEE_ID",
+				"name": "CUSTOMER_ID",
 				"type": "NUMBER",
 				"precision": 38,
 				"scale": 0
 			},
 			{
-				"name": "FIRST_NAME",
+				"name": "CUSTOMER_FIRST_NAME",
 				"type": "VARCHAR",
 				"precision": 0,
 				"scale": 0
 			},
 			{
-				"name": "LAST_NAME",
+				"name": "CUSTOMER_LAST_NAME",
 				"type": "VARCHAR",
 				"precision": 0,
 				"scale": 0
 			},
 			{
-				"name": "EMAIL",
-				"type": "VARCHAR",
-				"precision": 0,
-				"scale": 0
-			},
-			{
-				"name": "PHONE_NUMBER",
-				"type": "VARCHAR",
-				"precision": 0,
-				"scale": 0
-			},
-			{
-				"name": "HIRE_DATE",
+				"name": "CUSTOMER_DOB",
 				"type": "DATE",
 				"precision": 0,
 				"scale": 0
 			},
 			{
-				"name": "JOB_ID",
+				"name": "CUSTOMER_TYPE",
 				"type": "VARCHAR",
 				"precision": 0,
 				"scale": 0
 			},
 			{
-				"name": "SALARY",
-				"type": "NUMBER",
-				"precision": 38,
+				"name": "IS_LOYAL",
+				"type": "VARCHAR",
+				"precision": 0,
 				"scale": 0
 			},
 			{
-				"name": "COMMISSION_PCT",
-				"type": "NUMBER",
-				"precision": 38,
-				"scale": 0
-			},
-			{
-				"name": "MANAGER_ID",
-				"type": "NUMBER",
-				"precision": 38,
-				"scale": 0
-			},
-			{
-				"name": "DEPARTMENT_ID",
-				"type": "NUMBER",
-				"precision": 38,
+				"name": "FIRST_PURCHASE_DATE",
+				"type": "DATE",
+				"precision": 0,
 				"scale": 0
 			}
 		],
