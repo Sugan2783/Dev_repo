@@ -165,12 +165,8 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "SNOWFLAKE_PARAM",
-						"type": "DatasetReference",
-						"parameters": {
-							"SCHEMA_NAME": "CLAIMS",
-							"TABLE_NAME": "EMPLOYEES"
-						}
+						"referenceName": "SN_TEST",
+						"type": "DatasetReference"
 					}
 				]
 			}
