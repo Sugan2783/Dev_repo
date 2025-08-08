@@ -7,19 +7,88 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adf-dev-suganthi"
 		},
+		"AzureSqlDatabase1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
+		},
+		"Snowflake1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'Snowflake1'"
+		},
+		"SqlServer1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'SqlServer1'"
+		},
+		"AzureBlobStorage1_sasUri": {
+			"type": "secureString",
+			"metadata": "Secure string for 'sasUri' of 'AzureBlobStorage1'"
+		},
 		"AzureKeyVault1_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://devkeyvaultsuganthi.vault.azure.net/"
 		},
+		"AzureSqlDatabase1_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "datacloudserver.database.windows.net"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "DATABASECLOUD"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "suganthib"
+		},
+		"BLOB_sasUri": {
+			"type": "secureString",
+			"metadata": "Secure string for 'sasUri' of 'BLOB'"
+		},
+		"Snowflake1_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "GOLD"
+		},
+		"Snowflake1_properties_typeProperties_role": {
+			"type": "string",
+			"defaultValue": "ACCOUNTADMIN"
+		},
+		"SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/6cda72ae-09db-4ac7-a49f-757ca002a156/resourcegroups/SUGANTHI_RGROUP/providers/Microsoft.DataFactory/factories/suganthidfactory/integrationruntimes/SELFHOSTEDIR"
+		},
 		"DevStorageLinkService_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://bsdevsuganthi.dfs.core.windows.net/"
+		},
+		"SqlServer1_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "BALAFAMILY\\SQLSERVER2017"
+		},
+		"SqlServer1_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "SQL_TRAINING_2024"
+		},
+		"SqlServer1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sa"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"sasUri": "[parameters('AzureBlobStorage1_sasUri')]"
+				}
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureKeyVault1')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
@@ -32,6 +101,349 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]",
+					"database": "[parameters('AzureSqlDatabase1_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('AzureSqlDatabase1_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('AzureSqlDatabase1_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOB')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"sasUri": "[parameters('BLOB_sasUri')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Snowflake1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SnowflakeV2",
+				"typeProperties": {
+					"authenticationType": "Basic",
+					"accountIdentifier": "jcccszv-sx98938",
+					"user": "SUGANTHIB",
+					"database": "[parameters('Snowflake1_properties_typeProperties_database')]",
+					"warehouse": "COMPUTE_WH",
+					"role": "[parameters('Snowflake1_properties_typeProperties_role')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('Snowflake1_password')]"
+					}
+				},
+				"version": "1.1"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SELFHOSTEDIRSQL')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {
+					"linkedInfo": {
+						"resourceId": "[parameters('SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId')]",
+						"authorizationType": "Rbac"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "BLOB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "EMPLOYEES.csv",
+						"container": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/BLOB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOB_PARAM')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"CONTAINER": {
+						"type": "string"
+					},
+					"FOLDER_NAME": {
+						"type": "string"
+					},
+					"FILE_NAME": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().FILE_NAME",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().FOLDER_NAME",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().CONTAINER",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SNOWFLAKE_PARAM')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Snowflake1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"SCHEMA_NAME": {
+						"type": "string"
+					},
+					"TABLE_NAME": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().SCHEMA_NAME",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().TABLE_NAME",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Snowflake1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SN_TEST')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Snowflake1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [
+					{
+						"name": "EMPLOYEE_ID",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "FIRST_NAME",
+						"type": "VARCHAR",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "LAST_NAME",
+						"type": "VARCHAR",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "EMAIL",
+						"type": "VARCHAR",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "PHONE_NUMBER",
+						"type": "VARCHAR",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "HIRE_DATE",
+						"type": "DATE",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "JOB_ID",
+						"type": "VARCHAR",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "SALARY",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "COMMISSION_PCT",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "MANAGER_ID",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "DEPARTMENT_ID",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "CLAIMS",
+					"table": "EMPLOYEES"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Snowflake1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SQLDB_CLOUD')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"SCHEMA_NAME": {
+						"type": "string"
+					},
+					"TABLE_NAME": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().SCHEMA_NAME",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().TABLE_NAME",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/DevStorageLinkService')]",
@@ -57,7 +469,226 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SRC_TEST')]",
+			"name": "[concat(parameters('factoryName'), '/SqlServer1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"server": "[parameters('SqlServer1_properties_typeProperties_server')]",
+					"database": "[parameters('SqlServer1_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": true,
+					"authenticationType": "SQL",
+					"userName": "[parameters('SqlServer1_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('SqlServer1_password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "SELFHOSTEDIRSQL",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/SELFHOSTEDIRSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pip_SNOWFLAKE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "BLOB to SNOWFLAKE",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "AzureBlobStorage1",
+									"type": "LinkedServiceReference"
+								},
+								"path": "data/Output",
+								"enableCompression": true
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "EMPLOYEE_ID",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"name": "FIRST_NAME",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"name": "LAST_NAME",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"name": "EMAIL",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"name": "PHONE_NUMBER",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"name": "HIRE_DATE",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"name": "JOB_ID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"name": "SALARY",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"name": "COMMISSION_PCT",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"name": "MANAGER_ID",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 11
+										},
+										"sink": {
+											"name": "DEPARTMENT_ID",
+											"type": "Int64"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "BLOB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SNOWFLAKE_PARAM",
+								"type": "DatasetReference",
+								"parameters": {
+									"SCHEMA_NAME": "CLAIMS",
+									"TABLE_NAME": "EMPLOYEES"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/BLOB')]",
+				"[concat(variables('factoryId'), '/datasets/SNOWFLAKE_PARAM')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_PARAM')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -65,16 +696,87 @@
 					"referenceName": "DevStorageLinkService",
 					"type": "LinkedServiceReference"
 				},
+				"parameters": {
+					"CONTAINER": {
+						"type": "string"
+					},
+					"FOLDER": {
+						"type": "string"
+					},
+					"FILENAME": {
+						"type": "string"
+					}
+				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "STG_CUSTOMERS.csv",
-						"folderPath": "Input",
-						"fileSystem": "data"
+						"fileName": {
+							"value": "@dataset().FILENAME",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().FOLDER",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().CONTAINER",
+							"type": "Expression"
+						}
 					},
 					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/DevStorageLinkService')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SRC_ARCHIVE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DevStorageLinkService",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container": {
+						"type": "string"
+					},
+					"folder": {
+						"type": "string"
+					},
+					"filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().folder",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"compressionCodec": "gzip",
+					"compressionLevel": "Optimal",
 					"escapeChar": "\\",
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
@@ -115,6 +817,41 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/SS_ONPREM_PARAM')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SqlServer1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"SCHEMA_NAME": {
+						"type": "string"
+					},
+					"TABLE_NAME": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().SCHEMA_NAME",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().TABLE_NAME",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/SqlServer1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/TGT_TEST')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -144,14 +881,14 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pip_COPY')]",
+			"name": "[concat(parameters('factoryName'), '/pip_CONTROL_TABLE')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy data1",
-						"type": "Copy",
+						"name": "FetchMetadataEntries",
+						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -163,61 +900,698 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select * from @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} where load_type =  @{pipeline().parameters.p_LOAD_TYPE} and is_active_ind = @{pipeline().parameters.p_ACTIVE_FLAG}",
+									"type": "Expression"
 								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
 							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "SRC_TEST",
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"SCHEMA_NAME": "md",
+									"TABLE_NAME": "control_table"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "LoopMDTable",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FetchMetadataEntries",
+								"dependencyConditions": [
+									"Succeeded"
+								]
 							}
 						],
-						"outputs": [
-							{
-								"referenceName": "TGT_TEST",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FetchMetadataEntries').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "SQL_TO_ADLS",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "select * from @{item().SOURCE_SCHEMA}.@{item().SOURCE_TABLE} where claim_date > '@{item().LAST_MODIFIED_DATE}'",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SQLDB_CLOUD",
+											"type": "DatasetReference",
+											"parameters": {
+												"SCHEMA_NAME": {
+													"value": "@{item().SOURCE_SCHEMA}",
+													"type": "Expression"
+												},
+												"TABLE_NAME": {
+													"value": "@{item().SOURCE_TABLE}",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "SQL TO ADLS",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "SQL_TO_ADLS",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SQLDB_CLOUD",
+											"type": "DatasetReference",
+											"parameters": {
+												"SCHEMA_NAME": {
+													"value": "@item().TARGET_SCHEMA",
+													"type": "Expression"
+												},
+												"TABLE_NAME": {
+													"value": "@item().TARGET_TABLE",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Script1",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "SQL TO ADLS",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase1",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "@concat('UPDATE ', pipeline().parameters.p_SCHEMA_NAME, '.', pipeline().parameters.p_TABLE_NAME, \n        ' SET LAST_MODIFIED_DATE = ''', utcNow(), '''')\n",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								}
+							]
+						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"parameters": {
+					"p_SERVER_NAME": {
+						"type": "string",
+						"defaultValue": "SQL_SERVER"
+					},
+					"p_SCHEMA_NAME": {
+						"type": "string",
+						"defaultValue": "MD"
+					},
+					"p_TABLE_NAME": {
+						"type": "string",
+						"defaultValue": "CONTROL_TABLE"
+					},
+					"p_LOAD_TYPE": {
+						"type": "string",
+						"defaultValue": "'INCRE'"
+					},
+					"p_ACTIVE_FLAG": {
+						"type": "string",
+						"defaultValue": "'Y'"
+					},
+					"p_CONTAINER": {
+						"type": "string",
+						"defaultValue": "data"
+					},
+					"p_FOLDER": {
+						"type": "string",
+						"defaultValue": "Input"
+					}
+				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SRC_TEST')]",
-				"[concat(variables('factoryId'), '/datasets/TGT_TEST')]"
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]",
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pip_CONTROL_TABLE_ONPREM')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FetchMetadataEntries",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * from @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} where load_type = @{pipeline().parameters.p_LOAD_TYPE} and is_active_ind = @{pipeline().parameters.p_ACTIVE_FLAG}       ",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "SS_ONPREM_PARAM",
+								"type": "DatasetReference",
+								"parameters": {
+									"SCHEMA_NAME": "mdc",
+									"TABLE_NAME": "control_table"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "LoopMDTable",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FetchMetadataEntries",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FetchMetadataEntries').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "SQL_TO_ADLS",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "select * from @{item().SOURCE_SCHEMA}.@{item().SOURCE_TABLE} where claim_date > '@{item().LAST_MODIFIED_DATE}'",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SS_ONPREM_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"SCHEMA_NAME": {
+													"value": "@item().SOURCE_SCHEMA",
+													"type": "Expression"
+												},
+												"TABLE_NAME": {
+													"value": "@item().SOURCE_TABLE",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "ADLStoSQL",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "SQL_TO_ADLS",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"preCopyScript": {
+												"value": "truncate table @{item().TARGET_SCHEMA}.@{item().TARGET_TABLE}",
+												"type": "Expression"
+											},
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SQLDB_CLOUD",
+											"type": "DatasetReference",
+											"parameters": {
+												"SCHEMA_NAME": {
+													"value": "@item().TARGET_SCHEMA",
+													"type": "Expression"
+												},
+												"TABLE_NAME": {
+													"value": "@item().TARGET_TABLE",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Script1",
+									"type": "Script",
+									"state": "Inactive",
+									"onInactiveMarkAs": "Succeeded",
+									"dependsOn": [
+										{
+											"activity": "Copy data1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase1",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "@concat('UPDATE ', pipeline().parameters.p_SCHEMA_NAME, '.', pipeline().parameters.p_TABLE_NAME, \n        ' SET LAST_MODIFIED_DATE = ''', utcNow(), '''')\n",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								},
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"state": "Inactive",
+									"onInactiveMarkAs": "Succeeded",
+									"dependsOn": [
+										{
+											"activity": "ADLStoSQL",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SRC_ARCHIVE",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": {
+													"value": "@pipeline().parameters.p_ARCHIVE_CONTAINER",
+													"type": "Expression"
+												},
+												"folder": {
+													"value": "@concat('ARCHIVE/',formatDateTime(utcNow(),'ddMMyyyyy'))",
+													"type": "Expression"
+												},
+												"filename": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv.gz')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"p_SERVER_NAME": {
+						"type": "string",
+						"defaultValue": "SQL_SERVER"
+					},
+					"p_SCHEMA_NAME": {
+						"type": "string",
+						"defaultValue": "MDC"
+					},
+					"p_TABLE_NAME": {
+						"type": "string",
+						"defaultValue": "CONTROL_TABLE"
+					},
+					"p_LOAD_TYPE": {
+						"type": "string",
+						"defaultValue": "'FULL'"
+					},
+					"p_ACTIVE_FLAG": {
+						"type": "string",
+						"defaultValue": "'Y'"
+					},
+					"p_CONTAINER": {
+						"type": "string",
+						"defaultValue": "data"
+					},
+					"p_FOLDER": {
+						"type": "string",
+						"defaultValue": "Input"
+					},
+					"p_ARCHIVE_CONTAINER": {
+						"type": "string",
+						"defaultValue": "data"
+					},
+					"p_ARCHIVE_FOLDER": {
+						"type": "string",
+						"defaultValue": "ARCHIVE"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SS_ONPREM_PARAM')]",
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]",
+				"[concat(variables('factoryId'), '/datasets/SRC_ARCHIVE')]"
 			]
 		}
 	]

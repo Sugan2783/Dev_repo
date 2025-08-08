@@ -5,11 +5,53 @@
 		"factoryName": {
 			"value": "adf-dev-suganthi"
 		},
+		"AzureSqlDatabase1_password": {
+			"value": ""
+		},
+		"Snowflake1_password": {
+			"value": ""
+		},
+		"SqlServer1_password": {
+			"value": ""
+		},
+		"AzureBlobStorage1_sasUri": {
+			"value": ""
+		},
 		"AzureKeyVault1_properties_typeProperties_baseUrl": {
 			"value": "https://devkeyvaultsuganthi.vault.azure.net/"
 		},
+		"AzureSqlDatabase1_properties_typeProperties_server": {
+			"value": "datacloudserver.database.windows.net"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_database": {
+			"value": "DATABASECLOUD"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"value": "suganthib"
+		},
+		"BLOB_sasUri": {
+			"value": ""
+		},
 		"DevStorageLinkService_properties_typeProperties_url": {
 			"value": "https://bsdevsuganthi.dfs.core.windows.net/"
+		},
+		"Snowflake1_properties_typeProperties_database": {
+			"value": "GOLD"
+		},
+		"Snowflake1_properties_typeProperties_role": {
+			"value": "ACCOUNTADMIN"
+		},
+		"SqlServer1_properties_typeProperties_server": {
+			"value": "BALAFAMILY\\SQLSERVER2017"
+		},
+		"SqlServer1_properties_typeProperties_database": {
+			"value": "SQL_TRAINING_2024"
+		},
+		"SqlServer1_properties_typeProperties_userName": {
+			"value": "sa"
+		},
+		"SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId": {
+			"value": "/subscriptions/6cda72ae-09db-4ac7-a49f-757ca002a156/resourcegroups/SUGANTHI_RGROUP/providers/Microsoft.DataFactory/factories/suganthidfactory/integrationruntimes/SELFHOSTEDIR"
 		}
 	}
 }
