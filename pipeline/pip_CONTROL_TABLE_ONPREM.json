@@ -16,19 +16,19 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "SqlServerSource",
+						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select * from @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} where load_type = @{pipeline().parameters.p_LOAD_TYPE} and is_active_ind = @{pipeline().parameters.p_ACTIVE_FLAG}       ",
+							"value": "select * from @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} where load_type = @{pipeline().parameters.p_LOAD_TYPE} and is_active_ind = @{pipeline().parameters.p_ACTIVE_FLAG}",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "SS_ONPREM_PARAM",
+						"referenceName": "SQLDB_CLOUD",
 						"type": "DatasetReference",
 						"parameters": {
-							"SCHEMA_NAME": "mdc",
+							"SCHEMA_NAME": "md",
 							"TABLE_NAME": "control_table"
 						}
 					},
@@ -177,6 +177,68 @@
 								"enableStaging": false,
 								"translator": {
 									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "CUSTOMER_ID",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "CUSTOMER_ID",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										},
+										{
+											"source": {
+												"name": "NAME",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "NAME",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										},
+										{
+											"source": {
+												"name": "age",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "age",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										},
+										{
+											"source": {
+												"name": "city",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "city",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										},
+										{
+											"source": {
+												"name": "preexisting_Disease",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "preexisting_Disease",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										}
+									],
 									"typeConversion": true,
 									"typeConversionSettings": {
 										"allowDataTruncation": true,
@@ -365,7 +427,7 @@
 			},
 			"p_SCHEMA_NAME": {
 				"type": "string",
-				"defaultValue": "MDC"
+				"defaultValue": "MD"
 			},
 			"p_TABLE_NAME": {
 				"type": "string",
@@ -373,7 +435,7 @@
 			},
 			"p_LOAD_TYPE": {
 				"type": "string",
-				"defaultValue": "'FULL'"
+				"defaultValue": "'INCRE'"
 			},
 			"p_ACTIVE_FLAG": {
 				"type": "string",
