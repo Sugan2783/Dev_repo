@@ -307,10 +307,16 @@
 									"referenceName": "ADLS_PARAM",
 									"type": "DatasetReference",
 									"parameters": {
-										"CONTAINER": "data",
-										"FOLDER": "Input",
+										"CONTAINER": {
+											"value": "@pipeline().parameters.p_CONTAINER",
+											"type": "Expression"
+										},
+										"FOLDER": {
+											"value": "@pipeline().parameters.p_FOLDER",
+											"type": "Expression"
+										},
 										"FILENAME": {
-											"value": " ",
+											"value": "@concat(item().SOURCE_TABLE,'.csv')",
 											"type": "Expression"
 										}
 									}
@@ -319,7 +325,21 @@
 							"outputs": [
 								{
 									"referenceName": "SRC_TEST",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().parameters.p_ARCHIVE_CONTAINER",
+											"type": "Expression"
+										},
+										"folder": {
+											"value": "@concat('ARCHIVE/',formatDateTime(utcNow(),'ddMMyyyyy'))",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv.gz')",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						}
