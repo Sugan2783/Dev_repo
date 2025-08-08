@@ -387,7 +387,7 @@
 											"type": "Expression"
 										},
 										"FILENAME": {
-											"value": "concat(@{item().SOURCE_SCHEMA},'_',@{item().SOURCE_TABLE},'.csv')",
+											"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
 											"type": "Expression"
 										}
 									}
