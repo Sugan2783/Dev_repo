@@ -172,7 +172,15 @@
 							"inputs": [
 								{
 									"referenceName": "BLOB",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"BCONTAINER": "data",
+										"BFOLDER_NMAE": "Input",
+										"BFILE_NAME": {
+											"value": "@concat(item().SOURCE_TABLE,'.csv')",
+											"type": "Expression"
+										}
+									}
 								}
 							],
 							"outputs": [
