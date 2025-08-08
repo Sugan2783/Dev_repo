@@ -167,7 +167,7 @@
 								"sink": {
 									"type": "AzureSqlSink",
 									"preCopyScript": {
-										"value": "truncate table @{item().TARGET_SCHEAM}.@{item().TARGET_TABLE}",
+										"value": "truncate table @{item().TARGET_SCHEMA}.@{item().TARGET_TABLE}",
 										"type": "Expression"
 									},
 									"writeBehavior": "insert",
