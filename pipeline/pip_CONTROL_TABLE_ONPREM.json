@@ -1,0 +1,291 @@
+{
+	"name": "pip_CONTROL_TABLE_ONPREM",
+	"properties": {
+		"activities": [
+			{
+				"name": "FetchMetadataEntries",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select * from @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} where load_type =  @{pipeline().parameters.p_LOAD_TYPE} and is_active_ind = @{pipeline().parameters.p_ACTIVE_FLAG}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SQLDB_CLOUD",
+						"type": "DatasetReference",
+						"parameters": {
+							"SCHEMA_NAME": "md",
+							"TABLE_NAME": "control_table"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "LoopMDTable",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FetchMetadataEntries",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FetchMetadataEntries').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "SQL_TO_ADLS",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "select * from @{item().SOURCE_SCHEMA}.@{item().SOURCE_TABLE} where claim_date > '@{item().LAST_MODIFIED_DATE}'",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "SQLDB_CLOUD",
+									"type": "DatasetReference",
+									"parameters": {
+										"SCHEMA_NAME": {
+											"value": "@{item().SOURCE_SCHEMA}",
+											"type": "Expression"
+										},
+										"TABLE_NAME": {
+											"value": "@{item().SOURCE_TABLE}",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ADLS_PARAM",
+									"type": "DatasetReference",
+									"parameters": {
+										"CONTAINER": {
+											"value": "@pipeline().parameters.p_CONTAINER",
+											"type": "Expression"
+										},
+										"FOLDER": {
+											"value": "@pipeline().parameters.p_FOLDER",
+											"type": "Expression"
+										},
+										"FILENAME": {
+											"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "SQL TO ADLS",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "SQL_TO_ADLS",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ADLS_PARAM",
+									"type": "DatasetReference",
+									"parameters": {
+										"CONTAINER": {
+											"value": "@pipeline().parameters.p_CONTAINER",
+											"type": "Expression"
+										},
+										"FOLDER": {
+											"value": "@pipeline().parameters.p_FOLDER",
+											"type": "Expression"
+										},
+										"FILENAME": {
+											"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "SQLDB_CLOUD",
+									"type": "DatasetReference",
+									"parameters": {
+										"SCHEMA_NAME": {
+											"value": "@item().TARGET_SCHEMA",
+											"type": "Expression"
+										},
+										"TABLE_NAME": {
+											"value": "@item().TARGET_TABLE",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Script1",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "SQL TO ADLS",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSqlDatabase1",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "@concat('UPDATE ', pipeline().parameters.p_SCHEMA_NAME, '.', pipeline().parameters.p_TABLE_NAME, \n        ' SET LAST_MODIFIED_DATE = ''', utcNow(), '''')\n",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"p_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "SQL_SERVER"
+			},
+			"p_SCHEMA_NAME": {
+				"type": "string",
+				"defaultValue": "MDC"
+			},
+			"p_TABLE_NAME": {
+				"type": "string",
+				"defaultValue": "CONTROL_TABLE"
+			},
+			"p_LOAD_TYPE": {
+				"type": "string",
+				"defaultValue": "'INCRE'"
+			},
+			"p_ACTIVE_FLAG": {
+				"type": "string",
+				"defaultValue": "'Y'"
+			},
+			"p_CONTAINER": {
+				"type": "string",
+				"defaultValue": "data"
+			},
+			"p_FOLDER": {
+				"type": "string",
+				"defaultValue": "Input"
+			}
+		},
+		"annotations": []
+	}
+}

@@ -16,15 +16,9 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "DelimitedTextSource",
-						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
-							"recursive": true,
-							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "DelimitedTextReadSettings"
-						}
+						"type": "SqlServerSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
 					},
 					"sink": {
 						"type": "DelimitedTextSink",
@@ -49,8 +43,12 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "SRC_TEST",
-						"type": "DatasetReference"
+						"referenceName": "SS_ONPREM_PARAM",
+						"type": "DatasetReference",
+						"parameters": {
+							"SCHEMA_NAME": "MDC",
+							"TABLE_NAME": "CONTROL_TABLE"
+						}
 					}
 				],
 				"outputs": [
