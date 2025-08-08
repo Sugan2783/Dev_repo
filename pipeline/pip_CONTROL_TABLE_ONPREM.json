@@ -311,7 +311,7 @@
 									{
 										"type": "Query",
 										"text": {
-											"value": "@concat(\n    'UPDATE ', pipeline().parameters.p_SCHEMA_NAME, '.', pipeline().parameters.p_TABLE_NAME, \n    ' SET LAST_MODIFIED_DATE = ''', utcNow(), \n    ''' WHERE load_type = ''', pipeline().parameters.p_LOAD_TYPE, ''''\n)\n",
+											"value": "@concat(\n    'UPDATE ', pipeline().parameters.p_SCHEMA_NAME, '.', pipeline().parameters.p_TABLE_NAME, \n    ' SET LAST_MODIFIED_DATE = ', utcNow(), \n    ' WHERE load_type = ', pipeline().parameters.p_LOAD_TYPE\n)\n",
 											"type": "Expression"
 										}
 									}
