@@ -167,7 +167,26 @@
 										"type": "SnowflakeImportCopyCommand"
 									}
 								},
-								"enableStaging": false
+								"enableStaging": true,
+								"stagingSettings": {
+									"linkedServiceName": {
+										"referenceName": "BLOB",
+										"type": "LinkedServiceReference"
+									}
+								},
+								"logSettings": {
+									"enableCopyActivityLog": true,
+									"copyActivityLogSettings": {
+										"logLevel": "Warning",
+										"enableReliableLogging": false
+									},
+									"logLocationSettings": {
+										"linkedServiceName": {
+											"referenceName": "BLOB",
+											"type": "LinkedServiceReference"
+										}
+									}
+								}
 							},
 							"inputs": [
 								{
@@ -185,15 +204,11 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "SNOWFLAKE_PARAM",
+									"referenceName": "SN_TEST",
 									"type": "DatasetReference",
 									"parameters": {
-										"SN_SCHEMA": {
-											"value": "@item().TARGET_SCHEMA",
-											"type": "Expression"
-										},
-										"SN_TABLE": {
-											"value": "@item().TARGET_TABLE",
+										"SCHEMA_TABLE_NAME": {
+											"value": "@concat(item().TARGET_SCHEMA,'.',item().TARGET_TABLE)",
 											"type": "Expression"
 										}
 									}

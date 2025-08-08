@@ -6,10 +6,7 @@
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"SCHEMA_NAME": {
-				"type": "string"
-			},
-			"TABLE_NAME": {
+			"SCHEMA_TABLE_NAME": {
 				"type": "string"
 			}
 		},
@@ -61,7 +58,7 @@
 		],
 		"typeProperties": {
 			"schema": "CLAIMS",
-			"table": "STG_CUSTOMERS"
+			"table": "CLAIM_DATA_TABLE1_TGT"
 		}
 	}
 }
