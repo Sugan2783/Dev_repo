@@ -18,7 +18,7 @@
 					"source": {
 						"type": "SnowflakeV2Source",
 						"query": {
-							"value": "select * from claims.control_table_Batch_001\nwhere load_type = 'INCRE'",
+							"value": "select * from claims.control_table_Batch_001\nwhere load_type = 'FULL'",
 							"type": "Expression"
 						},
 						"exportSettings": {
@@ -129,6 +129,29 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "Copy data2",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "Copy data1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"enableStaging": false
+							}
 						}
 					]
 				}
