@@ -77,7 +77,7 @@
 		],
 		"typeProperties": {
 			"schema": "CLAIMS",
-			"table": "EMPLOYEES"
+			"table": "STG_CUSTOMERS"
 		}
 	}
 }
