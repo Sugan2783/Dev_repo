@@ -38,9 +38,6 @@
 		"Snowflake1_properties_typeProperties_database": {
 			"value": "GOLD"
 		},
-		"Snowflake1_properties_typeProperties_role": {
-			"value": "ACCOUNTADMIN"
-		},
 		"SqlServer1_properties_typeProperties_server": {
 			"value": "BALAFAMILY\\SQLSERVER2017"
 		},

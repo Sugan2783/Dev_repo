@@ -51,10 +51,6 @@
 			"type": "string",
 			"defaultValue": "GOLD"
 		},
-		"Snowflake1_properties_typeProperties_role": {
-			"type": "string",
-			"defaultValue": "ACCOUNTADMIN"
-		},
 		"SqlServer1_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "BALAFAMILY\\SQLSERVER2017"
@@ -127,9 +123,6 @@
 					},
 					"Snowflake1_properties_typeProperties_database": {
 						"value": "[parameters('Snowflake1_properties_typeProperties_database')]"
-					},
-					"Snowflake1_properties_typeProperties_role": {
-						"value": "[parameters('Snowflake1_properties_typeProperties_role')]"
 					},
 					"SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId": {
 						"value": "[parameters('SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId')]"

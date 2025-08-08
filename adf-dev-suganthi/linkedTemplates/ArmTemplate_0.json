@@ -47,10 +47,6 @@
 			"type": "string",
 			"defaultValue": "GOLD"
 		},
-		"Snowflake1_properties_typeProperties_role": {
-			"type": "string",
-			"defaultValue": "ACCOUNTADMIN"
-		},
 		"SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId": {
 			"type": "string",
 			"defaultValue": "/subscriptions/6cda72ae-09db-4ac7-a49f-757ca002a156/resourcegroups/SUGANTHI_RGROUP/providers/Microsoft.DataFactory/factories/suganthidfactory/integrationruntimes/SELFHOSTEDIR"
@@ -150,7 +146,6 @@
 					"user": "SUGANTHIB",
 					"database": "[parameters('Snowflake1_properties_typeProperties_database')]",
 					"warehouse": "COMPUTE_WH",
-					"role": "[parameters('Snowflake1_properties_typeProperties_role')]",
 					"password": {
 						"type": "SecureString",
 						"value": "[parameters('Snowflake1_password')]"
@@ -189,12 +184,14 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "EMPLOYEES.csv",
-						"container": "landing"
+						"fileName": "STG_CUSTOMERS.csv",
+						"folderPath": "Input",
+						"container": "data"
 					},
 					"columnDelimiter": ",",
+					"rowDelimiter": "\r\n",
 					"escapeChar": "\\",
-					"firstRowAsHeader": false,
+					"firstRowAsHeader": true,
 					"quoteChar": "\""
 				},
 				"schema": [
@@ -403,7 +400,7 @@
 				],
 				"typeProperties": {
 					"schema": "CLAIMS",
-					"table": "EMPLOYEES"
+					"table": "STG_CUSTOMERS"
 				}
 			},
 			"dependsOn": [
@@ -666,12 +663,9 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "SNOWFLAKE_PARAM",
+								"referenceName": "SN_TEST",
 								"type": "DatasetReference",
-								"parameters": {
-									"SCHEMA_NAME": "CLAIMS",
-									"TABLE_NAME": "EMPLOYEES"
-								}
+								"parameters": {}
 							}
 						]
 					}
@@ -683,7 +677,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/BLOB')]",
-				"[concat(variables('factoryId'), '/datasets/SNOWFLAKE_PARAM')]",
+				"[concat(variables('factoryId'), '/datasets/SN_TEST')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
 			]
 		},
@@ -1201,19 +1195,19 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "SqlServerSource",
+								"type": "AzureSqlSource",
 								"sqlReaderQuery": {
-									"value": "select * from @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} where load_type = @{pipeline().parameters.p_LOAD_TYPE} and is_active_ind = @{pipeline().parameters.p_ACTIVE_FLAG}       ",
+									"value": "select * from @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} where load_type = @{pipeline().parameters.p_LOAD_TYPE} and is_active_ind = @{pipeline().parameters.p_ACTIVE_FLAG}",
 									"type": "Expression"
 								},
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "SS_ONPREM_PARAM",
+								"referenceName": "SQLDB_CLOUD",
 								"type": "DatasetReference",
 								"parameters": {
-									"SCHEMA_NAME": "mdc",
+									"SCHEMA_NAME": "md",
 									"TABLE_NAME": "control_table"
 								}
 							},
@@ -1362,6 +1356,68 @@
 										"enableStaging": false,
 										"translator": {
 											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "CUSTOMER_ID",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "CUSTOMER_ID",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "NAME",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "NAME",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "age",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "age",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "city",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "city",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "preexisting_Disease",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "preexisting_Disease",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												}
+											],
 											"typeConversion": true,
 											"typeConversionSettings": {
 												"allowDataTruncation": true,
@@ -1409,11 +1465,9 @@
 								{
 									"name": "Script1",
 									"type": "Script",
-									"state": "Inactive",
-									"onInactiveMarkAs": "Succeeded",
 									"dependsOn": [
 										{
-											"activity": "Copy data1",
+											"activity": "Delete1",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -1436,7 +1490,7 @@
 											{
 												"type": "Query",
 												"text": {
-													"value": "@concat('UPDATE ', pipeline().parameters.p_SCHEMA_NAME, '.', pipeline().parameters.p_TABLE_NAME, \n        ' SET LAST_MODIFIED_DATE = ''', utcNow(), '''')\n",
+													"value": "@concat('UPDATE ', pipeline().parameters.p_SCHEMA_NAME, '.',pipeline().parameters.p_TABLE_NAME,' SET LAST_MODIFIED_DATE = ''', utcNow(), '''',' WHERE load_type = ''', pipeline().parameters.p_LOAD_TYPE, '''')\n\n",
 													"type": "Expression"
 												}
 											}
@@ -1447,8 +1501,6 @@
 								{
 									"name": "Copy data1",
 									"type": "Copy",
-									"state": "Inactive",
-									"onInactiveMarkAs": "Succeeded",
 									"dependsOn": [
 										{
 											"activity": "ADLStoSQL",
@@ -1512,7 +1564,7 @@
 													"type": "Expression"
 												},
 												"FILENAME": {
-													"value": "@concat(item().SOURCE_TABLE,'.csv')",
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
 													"type": "Expression"
 												}
 											}
@@ -1538,6 +1590,54 @@
 											}
 										}
 									]
+								},
+								{
+									"name": "Delete1",
+									"type": "Delete",
+									"dependsOn": [
+										{
+											"activity": "Copy data1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_ARCHIVE_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_ARCHIVE_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": " ",
+													"type": "Expression"
+												}
+											}
+										},
+										"enableLogging": false,
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"recursive": true,
+											"modifiedDatetimeEnd": null,
+											"wildcardFileName": "*.csv.gz",
+											"enablePartitionDiscovery": false
+										}
+									}
 								}
 							]
 						}
@@ -1553,7 +1653,7 @@
 					},
 					"p_SCHEMA_NAME": {
 						"type": "string",
-						"defaultValue": "MDC"
+						"defaultValue": "MD"
 					},
 					"p_TABLE_NAME": {
 						"type": "string",
@@ -1561,7 +1661,7 @@
 					},
 					"p_LOAD_TYPE": {
 						"type": "string",
-						"defaultValue": "'FULL'"
+						"defaultValue": "'INCRE'"
 					},
 					"p_ACTIVE_FLAG": {
 						"type": "string",
@@ -1587,9 +1687,9 @@
 				"annotations": []
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]",
 				"[concat(variables('factoryId'), '/datasets/SS_ONPREM_PARAM')]",
 				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
-				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]",
 				"[concat(variables('factoryId'), '/datasets/SRC_ARCHIVE')]"
 			]
