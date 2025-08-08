@@ -46,112 +46,72 @@
 						"mappings": [
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 1
+									"name": "Customer_Id",
+									"type": "String"
 								},
 								"sink": {
-									"name": "EMPLOYEE_ID",
+									"name": "CUSTOMER_ID",
 									"type": "Int64"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 2
+									"name": "Customer_First_Name",
+									"type": "String"
 								},
 								"sink": {
-									"name": "FIRST_NAME",
+									"name": "CUSTOMER_FIRST_NAME",
 									"type": "String"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 3
+									"name": "Customer_Last_Name",
+									"type": "String"
 								},
 								"sink": {
-									"name": "LAST_NAME",
+									"name": "CUSTOMER_LAST_NAME",
 									"type": "String"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 4
-								},
-								"sink": {
-									"name": "EMAIL",
+									"name": "Customer_DOB",
 									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"type": "String",
-									"ordinal": 5
 								},
 								"sink": {
-									"name": "PHONE_NUMBER",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"type": "String",
-									"ordinal": 6
-								},
-								"sink": {
-									"name": "HIRE_DATE",
+									"name": "CUSTOMER_DOB",
 									"type": "DateTime"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 7
+									"name": "Customer_Type",
+									"type": "String"
 								},
 								"sink": {
-									"name": "JOB_ID",
+									"name": "CUSTOMER_TYPE",
 									"type": "String"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 8
+									"name": "Is_Loyal",
+									"type": "String"
 								},
 								"sink": {
-									"name": "SALARY",
-									"type": "Int64"
+									"name": "IS_LOYAL",
+									"type": "String"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 9
+									"name": "First_Purchase_Date",
+									"type": "String"
 								},
 								"sink": {
-									"name": "COMMISSION_PCT",
-									"type": "Int64"
-								}
-							},
-							{
-								"source": {
-									"type": "String",
-									"ordinal": 10
-								},
-								"sink": {
-									"name": "MANAGER_ID",
-									"type": "Int64"
-								}
-							},
-							{
-								"source": {
-									"type": "String",
-									"ordinal": 11
-								},
-								"sink": {
-									"name": "DEPARTMENT_ID",
-									"type": "Int64"
+									"name": "FIRST_PURCHASE_DATE",
+									"type": "DateTime"
 								}
 							}
 						]
