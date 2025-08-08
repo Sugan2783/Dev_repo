@@ -18,7 +18,7 @@
 					"source": {
 						"type": "SnowflakeV2Source",
 						"query": {
-							"value": "select * from metadata.control_table_Batch_001\nwhere load_type = 'INCRE'",
+							"value": "select * from claims.control_table_Batch_001\nwhere load_type = 'INCRE'",
 							"type": "Expression"
 						},
 						"exportSettings": {
@@ -38,7 +38,99 @@
 								"type": "Expression"
 							}
 						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup1').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "SS_ONPREM_PARAM",
+									"type": "DatasetReference",
+									"parameters": {
+										"SCHEMA_NAME": {
+											"value": "@item().SOURCE_SCHEMA",
+											"type": "Expression"
+										},
+										"TABLE_NAME": {
+											"value": "@item().SOURCE_TABLE",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ADLS_PARAM",
+									"type": "DatasetReference",
+									"parameters": {
+										"CONTAINER": "data",
+										"FOLDER": "Input",
+										"FILENAME": {
+											"value": "@concat(item().SOURCE_TABLE,'.csv')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
 				}
 			}
 		],
