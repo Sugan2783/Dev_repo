@@ -324,7 +324,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "SRC_TEST",
+									"referenceName": "SRC_ARCHIVE",
 									"type": "DatasetReference",
 									"parameters": {
 										"container": {

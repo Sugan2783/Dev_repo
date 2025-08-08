@@ -1,5 +1,5 @@
 {
-	"name": "SRC_TEST",
+	"name": "SRC_ARCHIVE",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "DevStorageLinkService",
