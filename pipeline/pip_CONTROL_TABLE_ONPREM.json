@@ -67,11 +67,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"source": {
-									"type": "AzureSqlSource",
-									"sqlReaderQuery": {
-										"value": "select * from @{item().SOURCE_SCHEMA}.@{item().SOURCE_TABLE} where claim_date > '@{item().LAST_MODIFIED_DATE}'",
-										"type": "Expression"
-									},
+									"type": "SqlServerSource",
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
@@ -98,15 +94,15 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "SQLDB_CLOUD",
+									"referenceName": "SS_ONPREM_PARAM",
 									"type": "DatasetReference",
 									"parameters": {
 										"SCHEMA_NAME": {
-											"value": "@{item().SOURCE_SCHEMA}",
+											"value": "@item().SOURCE_SCHEMA",
 											"type": "Expression"
 										},
 										"TABLE_NAME": {
-											"value": "@{item().SOURCE_TABLE}",
+											"value": "@item().SOURCE_TABLE",
 											"type": "Expression"
 										}
 									}
@@ -271,7 +267,7 @@
 			},
 			"p_LOAD_TYPE": {
 				"type": "string",
-				"defaultValue": "'INCRE'"
+				"defaultValue": "'FULL'"
 			},
 			"p_ACTIVE_FLAG": {
 				"type": "string",
