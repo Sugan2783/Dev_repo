@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
 		},
+		"SN_CONTROL_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'SN_CONTROL'"
+		},
 		"Snowflake1_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'Snowflake1'"
@@ -46,6 +50,10 @@
 		"DevStorageLinkService_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://bsdevsuganthi.dfs.core.windows.net/"
+		},
+		"SN_CONTROL_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "GOLD"
 		},
 		"Snowflake1_properties_typeProperties_database": {
 			"type": "string",
@@ -97,6 +105,9 @@
 					"AzureSqlDatabase1_password": {
 						"value": "[parameters('AzureSqlDatabase1_password')]"
 					},
+					"SN_CONTROL_password": {
+						"value": "[parameters('SN_CONTROL_password')]"
+					},
 					"Snowflake1_password": {
 						"value": "[parameters('Snowflake1_password')]"
 					},
@@ -120,6 +131,9 @@
 					},
 					"BLOB_sasUri": {
 						"value": "[parameters('BLOB_sasUri')]"
+					},
+					"SN_CONTROL_properties_typeProperties_database": {
+						"value": "[parameters('SN_CONTROL_properties_typeProperties_database')]"
 					},
 					"Snowflake1_properties_typeProperties_database": {
 						"value": "[parameters('Snowflake1_properties_typeProperties_database')]"
