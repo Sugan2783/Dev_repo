@@ -14,43 +14,25 @@
 		"type": "SnowflakeV2Table",
 		"schema": [
 			{
-				"name": "CUSTOMER_ID",
+				"name": "CLAIM_ID",
 				"type": "NUMBER",
-				"precision": 38,
+				"precision": 5,
 				"scale": 0
 			},
 			{
-				"name": "CUSTOMER_FIRST_NAME",
+				"name": "CLAIMANT_NAME",
 				"type": "VARCHAR",
 				"precision": 0,
 				"scale": 0
 			},
 			{
-				"name": "CUSTOMER_LAST_NAME",
-				"type": "VARCHAR",
-				"precision": 0,
+				"name": "CLAIM_AMOUNT",
+				"type": "NUMBER",
+				"precision": 10,
 				"scale": 0
 			},
 			{
-				"name": "CUSTOMER_DOB",
-				"type": "DATE",
-				"precision": 0,
-				"scale": 0
-			},
-			{
-				"name": "CUSTOMER_TYPE",
-				"type": "VARCHAR",
-				"precision": 0,
-				"scale": 0
-			},
-			{
-				"name": "IS_LOYAL",
-				"type": "VARCHAR",
-				"precision": 0,
-				"scale": 0
-			},
-			{
-				"name": "FIRST_PURCHASE_DATE",
+				"name": "UPDATE_DATE",
 				"type": "DATE",
 				"precision": 0,
 				"scale": 0
