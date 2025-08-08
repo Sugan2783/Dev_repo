@@ -11,7 +11,7 @@
 			"trustServerCertificate": true,
 			"authenticationType": "SQL",
 			"userName": "sa",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI4YWM5ZDI2OC01ZWIzLTQyOWYtODUwMi0xOWIyOGY3NmEzYWMiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJjY2Q4Nzc5ZC0xODMxLTRjMzQtOTY0Ny0yMGFjNDk0OGNlZTEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "SELFHOSTEDIRSQL",
