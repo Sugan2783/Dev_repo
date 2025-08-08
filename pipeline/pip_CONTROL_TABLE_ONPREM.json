@@ -69,7 +69,7 @@
 								"source": {
 									"type": "SqlServerSource",
 									"sqlReaderQuery": {
-										"value": "select * from @{item().SOURCE_SCHEMA}.@{item().SOURCE_TABLE} where claim_date > '@{item().last_modified_date}'",
+										"value": "select * from @{item().SOURCE_SCHEMA}.@{item().SOURCE_TABLE} where claim_date > '@{item().LAST_MODIFIED_DATE}'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
@@ -134,7 +134,7 @@
 							]
 						},
 						{
-							"name": "SQL TO ADLS",
+							"name": "ADLStoSQL",
 							"type": "Copy",
 							"dependsOn": [
 								{
@@ -266,7 +266,7 @@
 							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
-									"activity": "SQL TO ADLS",
+									"activity": "ADLStoSQL",
 									"dependencyConditions": [
 										"Succeeded"
 									]
