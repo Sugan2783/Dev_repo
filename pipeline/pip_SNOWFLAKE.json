@@ -120,7 +120,11 @@
 				"inputs": [
 					{
 						"referenceName": "BLOB",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"BCONTAINER": "data",
+							"BFOLDER_NMAE": "Input"
+						}
 					}
 				],
 				"outputs": [
