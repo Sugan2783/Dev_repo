@@ -10,8 +10,9 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "EMPLOYEES.csv",
-				"container": "landing"
+				"fileName": "STG_CUSTOMERS.csv",
+				"folderPath": "Input",
+				"container": "data"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
