@@ -153,7 +153,7 @@
 								"source": {
 									"type": "DelimitedTextSource",
 									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
+										"type": "AzureBlobStorageReadSettings",
 										"recursive": true,
 										"enablePartitionDiscovery": false
 									},
@@ -171,16 +171,8 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "ADLS_PARAM",
-									"type": "DatasetReference",
-									"parameters": {
-										"CONTAINER": "data",
-										"FOLDER": "Input",
-										"FILENAME": {
-											"value": "@concat(item().SOURCE_TABLE,'.csv')",
-											"type": "Expression"
-										}
-									}
+									"referenceName": "BLOB",
+									"type": "DatasetReference"
 								}
 							],
 							"outputs": [

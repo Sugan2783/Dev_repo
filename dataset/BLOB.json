@@ -5,14 +5,34 @@
 			"referenceName": "BLOB",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"BCONTAINER": {
+				"type": "string"
+			},
+			"BFOLDER_NMAE": {
+				"type": "string"
+			},
+			"BFILE_NAME": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "STG_CUSTOMERS.csv",
-				"folderPath": "Input",
-				"container": "data"
+				"fileName": {
+					"value": "@dataset().BFILE_NAME",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().BFOLDER_NMAE",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().BCONTAINER",
+					"type": "Expression"
+				}
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
