@@ -133,8 +133,6 @@
 						{
 							"name": "Copy data2",
 							"type": "Copy",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Copy data1",
@@ -152,8 +150,55 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "SnowflakeV2Sink",
+									"importSettings": {
+										"type": "SnowflakeImportCopyCommand"
+									}
+								},
 								"enableStaging": false
-							}
+							},
+							"inputs": [
+								{
+									"referenceName": "ADLS_PARAM",
+									"type": "DatasetReference",
+									"parameters": {
+										"CONTAINER": "data",
+										"FOLDER": "Input",
+										"FILENAME": {
+											"value": "@concat(item().SOURCE_TABLE,'.csv')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "SNOWFLAKE_PARAM",
+									"type": "DatasetReference",
+									"parameters": {
+										"SN_SCHEMA": {
+											"value": "@item().TARGET_SCHEMA",
+											"type": "Expression"
+										},
+										"SN_TABLE": {
+											"value": "@item().TARGET_TABLE",
+											"type": "Expression"
+										}
+									}
+								}
+							]
 						}
 					]
 				}
