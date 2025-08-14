@@ -136,7 +136,22 @@
 													"type": "DelimitedTextReadSettings"
 												}
 											},
-											"enableStaging": false
+											"sink": {
+												"type": "AzureSqlSink",
+												"writeBehavior": "insert",
+												"sqlWriterUseTableLock": false,
+												"tableOption": "autoCreate",
+												"disableMetricsCollection": false
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
 										},
 										"inputs": [
 											{
@@ -153,6 +168,19 @@
 													},
 													"FILENAME": {
 														"value": "@item()",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "SQLDB_CLOUD",
+												"type": "DatasetReference",
+												"parameters": {
+													"SCHEMA_NAME": "claims",
+													"TABLE_NAME": {
+														"value": "@replace(item(),'.csv','')",
 														"type": "Expression"
 													}
 												}
