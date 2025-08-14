@@ -20,7 +20,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"CONTAINER": "data",
-							"FOLDER": "Input",
+							"FOLDER": "Output",
 							"FILENAME": {
 								"value": " ",
 								"type": "Expression"
@@ -42,6 +42,8 @@
 			{
 				"name": "ForEach1",
 				"type": "ForEach",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Get Metadata1",
@@ -75,7 +77,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"CONTAINER": "data",
-										"FOLDER": "Input",
+										"FOLDER": "Output",
 										"FILENAME": {
 											"value": "@item().name",
 											"type": "Expression"
