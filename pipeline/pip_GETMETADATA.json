@@ -42,8 +42,6 @@
 			{
 				"name": "ForEach1",
 				"type": "ForEach",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Get Metadata1",
@@ -79,7 +77,7 @@
 										"CONTAINER": "data",
 										"FOLDER": "Output",
 										"FILENAME": {
-											"value": "@item().name",
+											"value": " ",
 											"type": "Expression"
 										}
 									}
@@ -105,18 +103,26 @@
 									"dependencyConditions": [
 										"Succeeded"
 									]
+								},
+								{
+									"activity": "Get Metadata3",
+									"dependencyConditions": [
+										"Succeeded"
+									]
 								}
 							],
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@greater(activity('Get Metadata2').output.size, 200)",
+									"value": "@and(greater(activity('Get Metadata3').output.size, 200), equals(activity('Get Metadata2').output.itemType, 'Folder'))",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
 									{
 										"name": "Copy data1",
 										"type": "Copy",
+										"state": "Inactive",
+										"onInactiveMarkAs": "Succeeded",
 										"dependsOn": [],
 										"policy": {
 											"timeout": "0.12:00:00",
@@ -190,6 +196,43 @@
 										]
 									}
 								]
+							}
+						},
+						{
+							"name": "Get Metadata3",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "ADLS_PARAM",
+									"type": "DatasetReference",
+									"parameters": {
+										"CONTAINER": "data",
+										"FOLDER": "Ouput",
+										"FILENAME": {
+											"value": " ",
+											"type": "Expression"
+										}
+									}
+								},
+								"fieldList": [
+									"itemType"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
 							}
 						}
 					]
