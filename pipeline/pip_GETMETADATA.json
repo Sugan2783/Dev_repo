@@ -180,7 +180,7 @@
 												"parameters": {
 													"SCHEMA_NAME": "claims",
 													"TABLE_NAME": {
-														"value": "@replace(item(),'.csv','')",
+														"value": "@item()",
 														"type": "Expression"
 													}
 												}
