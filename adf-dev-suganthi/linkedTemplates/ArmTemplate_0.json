@@ -1312,7 +1312,7 @@
 											{
 												"type": "Query",
 												"text": {
-													"value": "@concat('UPDATE ', pipeline().parameters.p_SCHEMA_NAME, '.',pipeline().parameters.p_TABLE_NAME,' SET LAST_MODIFIED_DATE = ''', utcNow(), '''',' WHERE load_type = ''', pipeline().parameters.p_LOAD_TYPE, '''')\n\n",
+													"value": "update md.control_table set LAST_MODIFIED_DATE ='@{utcNow()}' where SOURCE_SCHEMA='@{item().SOURCE_SCHEMA}' and SOURCE_TABLE='@{item().SOURCE_TABLE}'\n\n\n",
 													"type": "Expression"
 												}
 											}
