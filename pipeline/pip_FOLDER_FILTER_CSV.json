@@ -45,6 +45,25 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
+						"activity": "Filter1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter1').output",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Filter1",
+				"type": "Filter",
+				"dependsOn": [
+					{
 						"activity": "Get Metadata1",
 						"dependencyConditions": [
 							"Succeeded"
@@ -57,24 +76,10 @@
 						"value": "@activity('Get Metadata1').output.childItems",
 						"type": "Expression"
 					},
-					"activities": [
-						{
-							"name": "Filter1",
-							"type": "Filter",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"items": {
-									"value": "@activity('Get Metadata1').output.childItems",
-									"type": "Expression"
-								},
-								"condition": {
-									"value": "@equals(activity('Get Metadata1').output.itemType, 'File')",
-									"type": "Expression"
-								}
-							}
-						}
-					]
+					"condition": {
+						"value": "@equals(activity('Get Metadata1').output.itemType, 'File')",
+						"type": "Expression"
+					}
 				}
 			}
 		],
