@@ -91,7 +91,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "OfileName",
+								"variableName": "ofilename",
 								"value": {
 									"value": "@variables('filename')",
 									"type": "Expression"
@@ -104,10 +104,13 @@
 		],
 		"variables": {
 			"filename": {
-				"type": "String"
+				"type": "Array"
 			},
 			"OfileName": {
 				"type": "String"
+			},
+			"ofilename": {
+				"type": "Array"
 			}
 		},
 		"folder": {
