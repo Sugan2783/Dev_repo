@@ -58,28 +58,11 @@
 					},
 					"ifTrueActivities": [
 						{
-							"name": "Set variable1",
-							"type": "SetVariable",
-							"dependsOn": [],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "filename",
-								"value": {
-									"value": "@activity('Get Metadata1').output.childItems",
-									"type": "Expression"
-								}
-							}
-						},
-						{
 							"name": "Set variable2",
 							"type": "SetVariable",
 							"dependsOn": [
 								{
-									"activity": "Set variable1",
+									"activity": "Set variable3",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -97,6 +80,23 @@
 									"type": "Expression"
 								}
 							}
+						},
+						{
+							"name": "Set variable3",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "filename",
+								"value": {
+									"value": "@activity('Get Metadata1').output.childItems",
+									"type": "Expression"
+								}
+							}
 						}
 					]
 				}
@@ -105,9 +105,6 @@
 		"variables": {
 			"filename": {
 				"type": "Array"
-			},
-			"OfileName": {
-				"type": "String"
 			},
 			"ofilename": {
 				"type": "Array"
