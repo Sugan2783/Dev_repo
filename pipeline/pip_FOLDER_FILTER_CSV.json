@@ -43,6 +43,8 @@
 			{
 				"name": "ForEach1",
 				"type": "ForEach",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Filter1",
@@ -73,14 +75,9 @@
 			{
 				"name": "Filter1",
 				"type": "Filter",
-				"dependsOn": [
-					{
-						"activity": "Get Metadata1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
@@ -92,8 +89,51 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('Get Metadata1').output.itemType, 'File')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Set variable1",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "filename",
+								"value": {
+									"value": "@activity('Get Metadata1').output.childItems",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
 			}
 		],
+		"variables": {
+			"filename": {
+				"type": "Array"
+			}
+		},
 		"folder": {
 			"name": "ASSIGNMENTS"
 		},
