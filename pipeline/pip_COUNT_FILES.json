@@ -55,7 +55,18 @@
 					"expression": {
 						"value": "@greater(length(activity('Get Metadata1').output.childItems), 5)",
 						"type": "Expression"
-					}
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Wait1",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 10
+							}
+						}
+					]
 				}
 			}
 		],
