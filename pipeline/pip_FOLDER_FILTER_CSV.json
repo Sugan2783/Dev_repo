@@ -109,18 +109,17 @@
 					},
 					"ifTrueActivities": [
 						{
-							"name": "Set variable1",
-							"type": "SetVariable",
+							"name": "Filter2",
+							"type": "Filter",
 							"dependsOn": [],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "filename",
-								"value": {
-									"value": "@activity('Get Metadata1').output.childItems",
+								"items": {
+									"value": "@activity('Get Metadata1').output.itemType",
+									"type": "Expression"
+								},
+								"condition": {
+									"value": "@item()",
 									"type": "Expression"
 								}
 							}
