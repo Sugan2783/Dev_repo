@@ -32,6 +32,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -77,7 +78,7 @@
 										"CONTAINER": "data",
 										"FOLDER": "Input",
 										"FILENAME": {
-											"value": " ",
+											"value": "@item().name",
 											"type": "Expression"
 										}
 									}
@@ -87,6 +88,7 @@
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
 									"modifiedDatetimeEnd": {
 										"value": "@adddays(utcNow(), -30)",
 										"type": "Expression"
@@ -99,8 +101,8 @@
 							}
 						},
 						{
-							"name": "Wait1",
-							"type": "Wait",
+							"name": "If Condition1",
+							"type": "IfCondition",
 							"dependsOn": [
 								{
 									"activity": "Get Metadata2",
@@ -111,7 +113,53 @@
 							],
 							"userProperties": [],
 							"typeProperties": {
-								"waitTimeInSeconds": 10
+								"expression": {
+									"value": "@greater(activity('Get Metadata1').output.lastModified, variables('referencedate'))",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Set variable1",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "referencedate",
+											"value": {
+												"value": "@activity('Get Metadata1').output.lastModified",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "Set variable2",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "Set variable1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "latestfile",
+											"value": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										}
+									}
+								]
 							}
 						}
 					]
@@ -121,6 +169,13 @@
 		"variables": {
 			"filename": {
 				"type": "Array"
+			},
+			"referencedate": {
+				"type": "String",
+				"defaultValue": "'1900-01-01T00:00:000'"
+			},
+			"latestfile": {
+				"type": "String"
 			}
 		},
 		"folder": {
