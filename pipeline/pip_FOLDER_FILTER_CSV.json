@@ -115,11 +115,35 @@
 							"userProperties": [],
 							"typeProperties": {
 								"items": {
-									"value": "@activity('Get Metadata1').output.itemType",
+									"value": "@activity('Get Metadata1').output",
 									"type": "Expression"
 								},
 								"condition": {
-									"value": "@item()",
+									"value": "@contains(item().name, '.csv')",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set variable1",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Filter2",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "filename",
+								"value": {
+									"value": "@activity('Filter2').output",
 									"type": "Expression"
 								}
 							}
