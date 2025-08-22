@@ -1,0 +1,12 @@
+{
+	"name": "pip_UNTIL_FILE_EXISTS",
+	"properties": {
+		"variables": {
+			"file_exists": {
+				"type": "Boolean",
+				"defaultValue": false
+			}
+		},
+		"annotations": []
+	}
+}
