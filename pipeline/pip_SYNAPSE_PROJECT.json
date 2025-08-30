@@ -104,7 +104,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"CONTAINER": "data",
-										"FOLDER": "Synapsee",
+										"FOLDER": "Synapse",
 										"FILENAME": {
 											"value": "@item().name",
 											"type": "Expression"
