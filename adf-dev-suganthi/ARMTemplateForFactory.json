@@ -2080,7 +2080,7 @@
 										"sink": {
 											"type": "AzureSqlSink",
 											"preCopyScript": {
-												"value": "truncate table @{item().name}",
+												"value": "@concat('TRUNCATE TABLE [dbo].[', replace(item().name,'.csv',''),'_stg', ']')\r\n",
 												"type": "Expression"
 											},
 											"writeBehavior": "insert",
@@ -2951,6 +2951,139 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_SCD1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLS_PARAM",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						},
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "insert"
+						},
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "upd"
+						}
+					],
+					"transformations": [
+						{
+							"name": "srctgtlkp"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "split1"
+						},
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          INCIDENT_ID as string,",
+						"          INCIDENT_LOCATION as string,",
+						"          INCIDENT_DATE as date,",
+						"          INCIDENT_DESCRIPTION as string,",
+						"          INCIDENT_TYPE as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source(output(",
+						"          INCIDENT_ID as string,",
+						"          INCIDENT_LOCATION as string,",
+						"          INCIDENT_DATE as string,",
+						"          INCIDENT_DESCRIPTION as string,",
+						"          INCIDENT_TYPE as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source2",
+						"source1, source2 lookup(source1@INCIDENT_ID == source2@INCIDENT_ID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> srctgtlkp",
+						"srctgtlkp derive(V_INS_UPD = iif(isNull(source2@INCIDENT_ID),'I','U')) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          INCIDENT_ID = source1@INCIDENT_ID,",
+						"          INCIDENT_LOCATION = source1@INCIDENT_LOCATION,",
+						"          INCIDENT_DATE = source1@INCIDENT_DATE,",
+						"          INCIDENT_DESCRIPTION = source1@INCIDENT_DESCRIPTION,",
+						"          INCIDENT_TYPE = source1@INCIDENT_TYPE,",
+						"          V_INS_UPD",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 split(V_INS_UPD == 'I',",
+						"     V_INS_UPD == 'U',",
+						"     disjoint: false) ~> split1@(INSERT, UPDATE, REST)",
+						"split1@UPDATE alterRow(updateIf(1 == 1)) ~> alterRow1",
+						"split1@INSERT sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> insert",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:false,",
+						"     updateable:true,",
+						"     upsertable:false,",
+						"     keys:['INCIDENT_ID'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          INCIDENT_ID,",
+						"          INCIDENT_LOCATION,",
+						"          INCIDENT_DATE,",
+						"          INCIDENT_DESCRIPTION,",
+						"          INCIDENT_TYPE",
+						"     )) ~> upd"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
+			]
 		}
 	]
 }
