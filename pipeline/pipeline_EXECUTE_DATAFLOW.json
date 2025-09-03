@@ -22,7 +22,7 @@
 							"source1": {
 								"CONTAINER": "data",
 								"FOLDER": "Synapse",
-								"FILENAME": "Incident_stg"
+								"FILENAME": "Incident.csv"
 							},
 							"source2": {
 								"SCHEMA_NAME": "dbo",
