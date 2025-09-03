@@ -1521,7 +1521,7 @@
 						"select1 split(V_INS_UPD == 'I',",
 						"     V_INS_UPD == 'U',",
 						"     disjoint: false) ~> split1@(INSERT, UPDATE, REST)",
-						"split1@UPDATE alterRow(updateIf(1 == 1)) ~> alterRow1",
+						"split1@UPDATE alterRow(updateIf(1==1)) ~> alterRow1",
 						"split1@INSERT sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     deletable:false,",
@@ -1554,6 +1554,67 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_EXECUTE_DATAFLOW')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_SCD1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {
+										"CONTAINER": "data",
+										"FOLDER": "Synapse",
+										"FILENAME": "Incident.csv"
+									},
+									"source2": {
+										"SCHEMA_NAME": "dbo",
+										"TABLE_NAME": "INCIDENT_STG"
+									},
+									"insert": {
+										"SCHEMA_NAME": "dbo",
+										"TABLE_NAME": "INCIDENT_STG"
+									},
+									"upd": {
+										"SCHEMA_NAME": "dbo",
+										"TABLE_NAME": "INCIDENT_STG"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_SCD1')]"
+			]
 		}
 	]
 }
