@@ -1582,7 +1582,7 @@
 									"source1": {
 										"CONTAINER": "data",
 										"FOLDER": "Synapse",
-										"FILENAME": "Incident.csv"
+										"FILENAME": "INCIDENT.csv"
 									},
 									"source2": {
 										"SCHEMA_NAME": "dbo",
