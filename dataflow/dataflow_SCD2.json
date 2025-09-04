@@ -19,7 +19,15 @@
 					"name": "source2"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SQLDB_CLOUD",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "lookup1"
@@ -35,6 +43,9 @@
 				},
 				{
 					"name": "derivedColumn2"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
@@ -78,7 +89,48 @@
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
 				"surrogateKey1 derive(EFF_DATE = currentDate(),",
-				"          {FLAG } = 'Y') ~> derivedColumn2"
+				"          {FLAG } = 'Y') ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          INCIDENT_ID = split1@INSERT@INCIDENT_ID,",
+				"          INCIDENT_LOCATION = split1@INSERT@INCIDENT_LOCATION,",
+				"          INCIDENT_DATE = split1@INSERT@INCIDENT_DATE,",
+				"          INCIDENT_DESCRIPTION = split1@INSERT@INCIDENT_DESCRIPTION,",
+				"          INCIDENT_TYPE = split1@INSERT@INCIDENT_TYPE,",
+				"          INCIDENT_KEY,",
+				"          INCIDENT_ID = split1@INSERT@INCIDENT_ID,",
+				"          INCIDENT_LOCATION = split1@INSERT@INCIDENT_LOCATION,",
+				"          INCIDENT_DATE = split1@INSERT@INCIDENT_DATE,",
+				"          INCIDENT_DESCRIPTION = split1@INSERT@INCIDENT_DESCRIPTION,",
+				"          INCIDENT_TYPE = split1@INSERT@INCIDENT_TYPE,",
+				"          EFF_DATE,",
+				"          END_DATE,",
+				"          {INCIDENT KEY},",
+				"          {FLAG }",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          INCIDENT_ID,",
+				"          INCIDENT_LOCATION,",
+				"          INCIDENT_DATE,",
+				"          INCIDENT_DESCRIPTION,",
+				"          INCIDENT_TYPE,",
+				"          INCIDENT_KEY,",
+				"          EFF_DATE,",
+				"          END_DATE,",
+				"          {INCIDENT KEY},",
+				"          {FLAG }",
+				"     )) ~> sink1"
 			]
 		}
 	}
