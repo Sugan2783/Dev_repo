@@ -2356,7 +2356,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "dataflow_SCD1",
+								"referenceName": "dataflow_scd2_NEW",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
@@ -2367,15 +2367,15 @@
 									},
 									"source2": {
 										"SCHEMA_NAME": "dbo",
-										"TABLE_NAME": "INCIDENT_STG"
+										"TABLE_NAME": "PROJECT_INCIDENT_DIM"
 									},
-									"insert": {
+									"sink1": {
 										"SCHEMA_NAME": "dbo",
-										"TABLE_NAME": "INCIDENT_STG"
+										"TABLE_NAME": "PROJECT_INCIDENT_DIM"
 									},
-									"upd": {
+									"sink2": {
 										"SCHEMA_NAME": "dbo",
-										"TABLE_NAME": "INCIDENT_STG"
+										"TABLE_NAME": "PROJECT_INCIDENT_DIM"
 									}
 								}
 							},
@@ -2394,7 +2394,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow_SCD1')]"
+				"[concat(variables('factoryId'), '/dataflows/dataflow_scd2_NEW')]"
 			]
 		},
 		{
@@ -3138,6 +3138,171 @@
 						"          INCIDENT_DESCRIPTION,",
 						"          INCIDENT_TYPE",
 						"     )) ~> upd"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_scd2_NEW')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLS_PARAM",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						},
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						}
+					],
+					"transformations": [
+						{
+							"name": "lookup1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "split1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn3"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "surrogateKey1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          INCIDENT_ID as integer,",
+						"          INCIDENT_LOCATION as string,",
+						"          INCIDENT_DATE as date,",
+						"          INCIDENT_DESCRIPTION as string,",
+						"          INCIDENT_TYPE as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source(output(",
+						"          INCIDENT_KEY as integer,",
+						"          INCIDENT_ID as integer,",
+						"          INCIDENT_LOCATION as string,",
+						"          INCIDENT_DATE as date,",
+						"          INCIDENT_DESCRIPTION as string,",
+						"          INCIDENT_TYPE as string,",
+						"          FLAG as string,",
+						"          EFF_DATE as date,",
+						"          END_DATE as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'select * from dbo.PROJECT_INCIDENT_DIM\\r\\nwhere flag = \\'Y\\'',",
+						"     format: 'query') ~> source2",
+						"source1, source2 lookup(source1@INCIDENT_ID == source2@INCIDENT_ID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookup1",
+						"lookup1 derive(INS_UPD_FLAG = iif(isNull(source2@INCIDENT_ID),'I', iif(not(isNull(source2@INCIDENT_ID)) && :SRC_MD5 != :TGT_MD5, 'U','')),",
+						"          SRC_MD5 := md5(source1@INCIDENT_LOCATION,source1@INCIDENT_DATE,source1@INCIDENT_DESCRIPTION,source1@INCIDENT_TYPE),",
+						"          TGT_MD5 := md5(source2@INCIDENT_LOCATION,source2@INCIDENT_DATE,source2@INCIDENT_DESCRIPTION,source2@INCIDENT_TYPE)) ~> derivedColumn1",
+						"select1 split(INS_UPD_FLAG =='I',",
+						"     INS_UPD_FLAG == 'U',",
+						"     disjoint: false) ~> split1@(INSERT, UPDATE, REST)",
+						"surrogateKey1 derive(EFF_DATE = currentDate(),",
+						"          {FLAG } = 'Y') ~> derivedColumn2",
+						"split1@UPDATE alterRow(updateIf(1==1)) ~> alterRow1",
+						"alterRow1 derive(END_DATE = currentDate(),",
+						"          FLAG = 'N') ~> derivedColumn3",
+						"derivedColumn1 select(mapColumn(",
+						"          INCIDENT_ID = source1@INCIDENT_ID,",
+						"          INCIDENT_LOCATION = source1@INCIDENT_LOCATION,",
+						"          INCIDENT_DATE = source1@INCIDENT_DATE,",
+						"          INCIDENT_DESCRIPTION = source1@INCIDENT_DESCRIPTION,",
+						"          INCIDENT_TYPE = source1@INCIDENT_TYPE,",
+						"          INCIDENT_KEY,",
+						"          INS_UPD_FLAG",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"split1@INSERT keyGenerate(output(INC_KEY as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"derivedColumn2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          INCIDENT_ID,",
+						"          INCIDENT_LOCATION,",
+						"          INCIDENT_DATE,",
+						"          INCIDENT_DESCRIPTION,",
+						"          INCIDENT_TYPE,",
+						"          INCIDENT_KEY = INC_KEY,",
+						"          EFF_DATE,",
+						"          {FLAG }",
+						"     )) ~> sink1",
+						"derivedColumn3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:false,",
+						"     updateable:true,",
+						"     upsertable:false,",
+						"     keys:['INCIDENT_KEY'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          INCIDENT_KEY,",
+						"          FLAG,",
+						"          END_DATE",
+						"     )) ~> sink2"
 					]
 				}
 			},
