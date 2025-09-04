@@ -26,6 +26,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "SQLDB_CLOUD",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
 				}
 			],
 			"transformations": [
@@ -46,11 +53,17 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn3"
 				}
 			],
 			"scriptLines": [
 				"source(output(",
-				"          INCIDENT_ID as string,",
+				"          INCIDENT_ID as integer,",
 				"          INCIDENT_LOCATION as string,",
 				"          INCIDENT_DATE as date,",
 				"          INCIDENT_DESCRIPTION as string,",
@@ -75,7 +88,7 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: 'select * from dbo.PROJECT_INCIDENT_DIM\\r\\nwhere flag = \\'Y\\'',",
 				"     format: 'query') ~> source2",
-				"source1, source2 lookup(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"source1, source2 lookup(source1@INCIDENT_ID == source2@INCIDENT_ID,",
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookup1",
@@ -109,6 +122,9 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
+				"split1@UPDATE alterRow(updateIf(1==1)) ~> alterRow1",
+				"alterRow1 derive(END_DATE = currentDate(),",
+				"          FLAG = 'N') ~> derivedColumn3",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
@@ -130,7 +146,22 @@
 				"          END_DATE,",
 				"          {INCIDENT KEY},",
 				"          {FLAG }",
-				"     )) ~> sink1"
+				"     )) ~> sink1",
+				"derivedColumn3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          INCIDENT_KEY,",
+				"          FLAG,",
+				"          END_DATE",
+				"     )) ~> sink2"
 			]
 		}
 	}
