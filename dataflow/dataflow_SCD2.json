@@ -98,7 +98,7 @@
 				"derivedColumn1 split(INS_UPD_FLAG =='I',",
 				"     INS_UPD_FLAG == 'U',",
 				"     disjoint: false) ~> split1@(INSERT, UPDATE, REST)",
-				"split1@INSERT keyGenerate(output(INCIDENT_KEY as long),",
+				"source1 keyGenerate(output(INCIDENT_KEY as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
 				"surrogateKey1 derive(EFF_DATE = currentDate(),",
