@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow_SCD1",
+						"referenceName": "dataflow_scd2_NEW",
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"source1": {
@@ -26,15 +26,15 @@
 							},
 							"source2": {
 								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "INCIDENT_STG"
+								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
 							},
-							"insert": {
+							"sink1": {
 								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "INCIDENT_STG"
+								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
 							},
-							"upd": {
+							"sink2": {
 								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "INCIDENT_STG"
+								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
 							}
 						}
 					},
