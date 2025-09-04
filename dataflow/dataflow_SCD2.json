@@ -26,6 +26,15 @@
 				},
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "surrogateKey1"
+				},
+				{
+					"name": "derivedColumn2"
 				}
 			],
 			"scriptLines": [
@@ -59,7 +68,17 @@
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookup1",
-				"lookup1 derive() ~> derivedColumn1"
+				"lookup1 derive(INS_UPD_FLAG = iif(isNull(source2@INCIDENT_ID),'I', iif(not(isNull(source2@INCIDENT_ID)) && :SRC_MD5 != :TGT_MD5, 'U','')),",
+				"          SRC_MD5 := md5(source1@INCIDENT_LOCATION,source1@INCIDENT_DATE,source1@INCIDENT_DESCRIPTION,source1@INCIDENT_TYPE),",
+				"          TGT_MD5 := md5(source2@INCIDENT_LOCATION,source2@INCIDENT_DATE,source2@INCIDENT_DESCRIPTION,source2@INCIDENT_TYPE)) ~> derivedColumn1",
+				"derivedColumn1 split(INS_UPD_FLAG =='I',",
+				"     INS_UPD_FLAG == 'U',",
+				"     disjoint: false) ~> split1@(INSERT, UPDATE, REST)",
+				"split1@INSERT keyGenerate(output({INCIDENT KEY} as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"surrogateKey1 derive(EFF_DATE = currentDate(),",
+				"          {FLAG } = 'Y') ~> derivedColumn2"
 			]
 		}
 	}
