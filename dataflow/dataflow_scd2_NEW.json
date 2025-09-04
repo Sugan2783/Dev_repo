@@ -46,9 +46,6 @@
 					"name": "split1"
 				},
 				{
-					"name": "surrogateKey1"
-				},
-				{
 					"name": "derivedColumn2"
 				},
 				{
@@ -98,10 +95,7 @@
 				"derivedColumn1 split(INS_UPD_FLAG =='I',",
 				"     INS_UPD_FLAG == 'U',",
 				"     disjoint: false) ~> split1@(INSERT, UPDATE, REST)",
-				"split1@INSERT keyGenerate(output({INCIDENT KEY} as long),",
-				"     startAt: 1L,",
-				"     stepValue: 1L) ~> surrogateKey1",
-				"surrogateKey1 derive(EFF_DATE = currentDate(),",
+				"split1@INSERT derive(EFF_DATE = currentDate(),",
 				"          {FLAG } = 'Y') ~> derivedColumn2",
 				"derivedColumn2 select(mapColumn(",
 				"          INCIDENT_ID = split1@INSERT@INCIDENT_ID,",
@@ -117,7 +111,7 @@
 				"          INCIDENT_TYPE = split1@INSERT@INCIDENT_TYPE,",
 				"          EFF_DATE,",
 				"          END_DATE,",
-				"          {INCIDENT KEY},",
+				"          {INCIDENT KEY} = surrogate_key,",
 				"          {FLAG }",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
@@ -150,9 +144,10 @@
 				"derivedColumn3 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
-				"     insertable:true,",
+				"     insertable:false,",
 				"     updateable:true,",
 				"     upsertable:false,",
+				"     keys:['INCIDENT_KEY'],",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
