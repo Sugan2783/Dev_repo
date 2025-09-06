@@ -28,6 +28,10 @@
 								"SCHEMA_NAME": "dbo",
 								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
 							},
+							"maxsurr": {
+								"SCHEMA_NAME": "dbo",
+								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
+							},
 							"sink1": {
 								"SCHEMA_NAME": "dbo",
 								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
