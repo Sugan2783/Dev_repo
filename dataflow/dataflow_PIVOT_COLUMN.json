@@ -16,6 +16,9 @@
 			"transformations": [
 				{
 					"name": "pivot1"
+				},
+				{
+					"name": "cast1"
 				}
 			],
 			"scriptLines": [
@@ -29,11 +32,16 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> source1",
-				"source1 pivot(groupBy(YEAR),",
-				"     pivotBy(MONTHSNAME, ['MONTHNAME']),",
-				"     AMOUNT = max(AMOUNT),",
+				"cast1 pivot(groupBy(YEAR,",
+				"          ACCOUNT),",
+				"     pivotBy(MONTHSNAME),",
+				"     AMOUNT = sum(AMOUNT),",
 				"     columnNaming: '$N$V',",
-				"     lateral: true) ~> pivot1"
+				"     lateral: true) ~> pivot1",
+				"source1 cast(output(",
+				"          AMOUNT as integer",
+				"     ),",
+				"     errors: true) ~> cast1"
 			]
 		}
 	}
