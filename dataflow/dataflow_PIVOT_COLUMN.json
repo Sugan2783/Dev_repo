@@ -29,7 +29,11 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> source1",
-				"source1 pivot(columnNaming: '$N$V',",
+				"source1 pivot(groupBy(YEAR,",
+				"          ACCOUNT),",
+				"     pivotBy(MONTHSNAME, ['MONTHNAME']),",
+				"     AMOUNT = max(AMOUNT),",
+				"     columnNaming: '$N$V',",
 				"     lateral: true) ~> pivot1"
 			]
 		}
