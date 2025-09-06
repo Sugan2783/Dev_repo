@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow_PIVOT",
+						"referenceName": "dataflow_PIVOT_COLUMN",
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"source1": {

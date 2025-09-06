@@ -1,5 +1,5 @@
 {
-	"name": "dataflow_PIVOT",
+	"name": "dataflow_UNPIVOT",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
