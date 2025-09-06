@@ -1,5 +1,5 @@
 {
-	"name": "pipeline_UNPIVOT_DF",
+	"name": "pipeline_pivot_df",
 	"properties": {
 		"activities": [
 			{
@@ -15,20 +15,6 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"dataflow": {
-						"referenceName": "dataflow_UNPIVOT",
-						"type": "DataFlowReference",
-						"datasetParameters": {
-							"source1": {
-								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "TGT_BUDGET"
-							},
-							"sink1": {
-								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "TGT_BUDGET_UNPIVOT"
-							}
-						}
-					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
