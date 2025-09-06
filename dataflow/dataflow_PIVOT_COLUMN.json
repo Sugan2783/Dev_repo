@@ -43,7 +43,7 @@
 				"cast1 pivot(groupBy(YEAR,",
 				"          ACCOUNT),",
 				"     pivotBy(MONTHSNAME),",
-				"     {} = sum(AMOUNT),",
+				"     { } = sum(AMOUNT),",
 				"     columnNaming: '$N$V',",
 				"     lateral: true) ~> pivot1",
 				"source1 cast(output(",
