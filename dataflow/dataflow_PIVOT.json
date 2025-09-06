@@ -1,0 +1,53 @@
+{
+	"name": "dataflow_PIVOT",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "SQLDB_CLOUD",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "multiplerowsfromsingle"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          YEAR as string,",
+				"          ACCOUNT as string,",
+				"          MONTH1 as string,",
+				"          MONTH2 as string,",
+				"          MONTH3 as string,",
+				"          MONTH4 as string,",
+				"          MONTH5 as string,",
+				"          MONTH6 as string,",
+				"          MONTH7 as string,",
+				"          MONTH8 as string,",
+				"          MONTH9 as string,",
+				"          MONTH10 as string,",
+				"          MONTH11 as string,",
+				"          MONTH12 as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 unpivot(output(",
+				"          MONTHSNAME as string,",
+				"          AMOUNT as integer",
+				"     ),",
+				"     ungroupBy(YEAR,",
+				"          ACCOUNT),",
+				"     lateral: true,",
+				"     ignoreNullPivots: false) ~> multiplerowsfromsingle"
+			]
+		}
+	}
+}
