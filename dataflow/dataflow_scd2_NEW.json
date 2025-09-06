@@ -157,7 +157,7 @@
 				"          INCIDENT_DATE,",
 				"          INCIDENT_DESCRIPTION,",
 				"          INCIDENT_TYPE,",
-				"          INCIDENT_KEY = INC_KEY,",
+				"          INCIDENT_KEY,",
 				"          EFF_DATE,",
 				"          {FLAG }",
 				"     )) ~> sink1",
