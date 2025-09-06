@@ -13,6 +13,816 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pip_CONTROL_TABLE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FetchMetadataEntries",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select * from @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} where load_type =  @{pipeline().parameters.p_LOAD_TYPE} and is_active_ind = @{pipeline().parameters.p_ACTIVE_FLAG}",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference",
+								"parameters": {
+									"SCHEMA_NAME": "md",
+									"TABLE_NAME": "control_table"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "LoopMDTable",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FetchMetadataEntries",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FetchMetadataEntries').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "SQL_TO_ADLS",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "select * from @{item().SOURCE_SCHEMA}.@{item().SOURCE_TABLE} where claim_date > '@{item().LAST_MODIFIED_DATE}'",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SQLDB_CLOUD",
+											"type": "DatasetReference",
+											"parameters": {
+												"SCHEMA_NAME": {
+													"value": "@{item().SOURCE_SCHEMA}",
+													"type": "Expression"
+												},
+												"TABLE_NAME": {
+													"value": "@{item().SOURCE_TABLE}",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "SQL TO ADLS",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "SQL_TO_ADLS",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SQLDB_CLOUD",
+											"type": "DatasetReference",
+											"parameters": {
+												"SCHEMA_NAME": {
+													"value": "@item().TARGET_SCHEMA",
+													"type": "Expression"
+												},
+												"TABLE_NAME": {
+													"value": "@item().TARGET_TABLE",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Script1",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "SQL TO ADLS",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase1",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "@concat('UPDATE ', pipeline().parameters.p_SCHEMA_NAME, '.', pipeline().parameters.p_TABLE_NAME, \n        ' SET LAST_MODIFIED_DATE = ''', utcNow(), '''')\n",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"p_SERVER_NAME": {
+						"type": "string",
+						"defaultValue": "SQL_SERVER"
+					},
+					"p_SCHEMA_NAME": {
+						"type": "string",
+						"defaultValue": "MD"
+					},
+					"p_TABLE_NAME": {
+						"type": "string",
+						"defaultValue": "CONTROL_TABLE"
+					},
+					"p_LOAD_TYPE": {
+						"type": "string",
+						"defaultValue": "'INCRE'"
+					},
+					"p_ACTIVE_FLAG": {
+						"type": "string",
+						"defaultValue": "'Y'"
+					},
+					"p_CONTAINER": {
+						"type": "string",
+						"defaultValue": "data"
+					},
+					"p_FOLDER": {
+						"type": "string",
+						"defaultValue": "Input"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pip_CONTROL_TABLE_ONPREM')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FetchMetadataEntries",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select * from @{pipeline().parameters.p_SCHEMA_NAME}.@{pipeline().parameters.p_TABLE_NAME} where load_type = @{pipeline().parameters.p_LOAD_TYPE} and is_active_ind = @{pipeline().parameters.p_ACTIVE_FLAG}",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference",
+								"parameters": {
+									"SCHEMA_NAME": "md",
+									"TABLE_NAME": "control_table"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "LoopMDTable",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "FetchMetadataEntries",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('FetchMetadataEntries').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "SQL_TO_ADLS",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "select * from @{item().SOURCE_SCHEMA}.@{item().SOURCE_TABLE} where claim_date > '@{item().LAST_MODIFIED_DATE}'",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SS_ONPREM_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"SCHEMA_NAME": {
+													"value": "@item().SOURCE_SCHEMA",
+													"type": "Expression"
+												},
+												"TABLE_NAME": {
+													"value": "@item().SOURCE_TABLE",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "ADLStoSQL",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "SQL_TO_ADLS",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"preCopyScript": {
+												"value": "truncate table @{item().TARGET_SCHEMA}.@{item().TARGET_TABLE}",
+												"type": "Expression"
+											},
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "CUSTOMER_ID",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "CUSTOMER_ID",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "NAME",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "NAME",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "age",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "age",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "city",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "city",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "preexisting_Disease",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "preexisting_Disease",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SQLDB_CLOUD",
+											"type": "DatasetReference",
+											"parameters": {
+												"SCHEMA_NAME": {
+													"value": "@item().TARGET_SCHEMA",
+													"type": "Expression"
+												},
+												"TABLE_NAME": {
+													"value": "@item().TARGET_TABLE",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Script1",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "Delete1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase1",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "update md.control_table set LAST_MODIFIED_DATE ='@{utcNow()}' where SOURCE_SCHEMA='@{item().SOURCE_SCHEMA}' and SOURCE_TABLE='@{item().SOURCE_TABLE}'\n\n\n",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								},
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "ADLStoSQL",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SRC_ARCHIVE",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": {
+													"value": "@pipeline().parameters.p_ARCHIVE_CONTAINER",
+													"type": "Expression"
+												},
+												"folder": {
+													"value": "@concat('ARCHIVE/',formatDateTime(utcNow(),'ddMMyyyyy'))",
+													"type": "Expression"
+												},
+												"filename": {
+													"value": "@concat(item().SOURCE_SCHEMA,'_',item().SOURCE_TABLE,'.csv.gz')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Delete1",
+									"type": "Delete",
+									"dependsOn": [
+										{
+											"activity": "Copy data1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": {
+													"value": "@pipeline().parameters.p_ARCHIVE_CONTAINER",
+													"type": "Expression"
+												},
+												"FOLDER": {
+													"value": "@pipeline().parameters.p_ARCHIVE_FOLDER",
+													"type": "Expression"
+												},
+												"FILENAME": {
+													"value": " ",
+													"type": "Expression"
+												}
+											}
+										},
+										"enableLogging": false,
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"recursive": true,
+											"modifiedDatetimeEnd": null,
+											"wildcardFileName": "*.csv.gz",
+											"enablePartitionDiscovery": false
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"p_SERVER_NAME": {
+						"type": "string",
+						"defaultValue": "SQL_SERVER"
+					},
+					"p_SCHEMA_NAME": {
+						"type": "string",
+						"defaultValue": "MD"
+					},
+					"p_TABLE_NAME": {
+						"type": "string",
+						"defaultValue": "CONTROL_TABLE"
+					},
+					"p_LOAD_TYPE": {
+						"type": "string",
+						"defaultValue": "'INCRE'"
+					},
+					"p_ACTIVE_FLAG": {
+						"type": "string",
+						"defaultValue": "'Y'"
+					},
+					"p_CONTAINER": {
+						"type": "string",
+						"defaultValue": "data"
+					},
+					"p_FOLDER": {
+						"type": "string",
+						"defaultValue": "Input"
+					},
+					"p_ARCHIVE_CONTAINER": {
+						"type": "string",
+						"defaultValue": "data"
+					},
+					"p_ARCHIVE_FOLDER": {
+						"type": "string",
+						"defaultValue": "ARCHIVE"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pip_COPY')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -32,20 +842,22 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "SqlServerSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
+								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
+									"type": "DelimitedTextReadSettings"
 								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
 							},
 							"enableStaging": false,
 							"translator": {
@@ -59,19 +871,23 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "SS_ONPREM_PARAM",
+								"referenceName": "ADLS_PARAM",
 								"type": "DatasetReference",
 								"parameters": {
-									"SCHEMA_NAME": "MDC",
-									"TABLE_NAME": "CONTROL_TABLE"
+									"CONTAINER": "data",
+									"FOLDER": "Input",
+									"FILENAME": "TGT_BUDGET_CONS.csv"
 								}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "TGT_TEST",
+								"referenceName": "SQLDB_CLOUD",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"SCHEMA_NAME": "dbo",
+									"TABLE_NAME": "TGT_BUDGET"
+								}
 							}
 						]
 					}
@@ -1426,6 +2242,106 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_PIVOT_DF')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_PIVOT_COLUMN",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {
+										"SCHEMA_NAME": "DBO",
+										"TABLE_NAME": "TGT_BUDGET_UNPIVOT"
+									},
+									"sink1": {
+										"SCHEMA_NAME": "DBO",
+										"TABLE_NAME": "PIVOT_TGT"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_UNPIVOT_DF')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_UNPIVOT",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {
+										"SCHEMA_NAME": "dbo",
+										"TABLE_NAME": "TGT_BUDGET"
+									},
+									"sink1": {
+										"SCHEMA_NAME": "dbo",
+										"TABLE_NAME": "TGT_BUDGET_UNPIVOT"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflow_SCD1')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1576,6 +2492,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "source2"
+						},
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "maxsurr"
 						}
 					],
 					"sinks": [
@@ -1618,11 +2541,14 @@
 						},
 						{
 							"name": "surrogateKey1"
+						},
+						{
+							"name": "join1"
 						}
 					],
 					"scriptLines": [
 						"source(output(",
-						"          INCIDENT_ID as integer,",
+						"          INCIDENT_ID as short,",
 						"          INCIDENT_LOCATION as string,",
 						"          INCIDENT_DATE as date,",
 						"          INCIDENT_DESCRIPTION as string,",
@@ -1647,6 +2573,14 @@
 						"     isolationLevel: 'READ_UNCOMMITTED',",
 						"     query: 'select * from dbo.PROJECT_INCIDENT_DIM\\r\\nwhere flag = \\'Y\\'',",
 						"     format: 'query') ~> source2",
+						"source(output(",
+						"          gen_sur_key as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'select coalesce(max(INCIDENT_KEY),0) as gen_sur_key from dbo.PROJECT_INCIDENT_DIM',",
+						"     format: 'query') ~> maxsurr",
 						"source1, source2 lookup(source1@INCIDENT_ID == source2@INCIDENT_ID,",
 						"     multiple: false,",
 						"     pickup: 'any',",
@@ -1654,11 +2588,12 @@
 						"lookup1 derive(INS_UPD_FLAG = iif(isNull(source2@INCIDENT_ID),'I', iif(not(isNull(source2@INCIDENT_ID)) && :SRC_MD5 != :TGT_MD5, 'U','')),",
 						"          SRC_MD5 := md5(source1@INCIDENT_LOCATION,source1@INCIDENT_DATE,source1@INCIDENT_DESCRIPTION,source1@INCIDENT_TYPE),",
 						"          TGT_MD5 := md5(source2@INCIDENT_LOCATION,source2@INCIDENT_DATE,source2@INCIDENT_DESCRIPTION,source2@INCIDENT_TYPE)) ~> derivedColumn1",
-						"select1 split(INS_UPD_FLAG =='I',",
+						"select1 split(INS_UPD_FLAG =='I' || INS_UPD_FLAG == 'U',",
 						"     INS_UPD_FLAG == 'U',",
 						"     disjoint: false) ~> split1@(INSERT, UPDATE, REST)",
-						"surrogateKey1 derive(EFF_DATE = currentDate(),",
-						"          {FLAG } = 'Y') ~> derivedColumn2",
+						"join1 derive(EFF_DATE = currentDate(),",
+						"          {FLAG } = 'Y',",
+						"          INCIDENT_KEY = INC_KEY + gen_sur_key) ~> derivedColumn2",
 						"split1@UPDATE alterRow(updateIf(1==1)) ~> alterRow1",
 						"alterRow1 derive(END_DATE = currentDate(),",
 						"          FLAG = 'N') ~> derivedColumn3",
@@ -1676,6 +2611,11 @@
 						"split1@INSERT keyGenerate(output(INC_KEY as long),",
 						"     startAt: 1L,",
 						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1, maxsurr join(INCIDENT_KEY == INC_KEY,",
+						"     joinType:'cross',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
 						"derivedColumn2 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     deletable:false,",
@@ -1692,7 +2632,7 @@
 						"          INCIDENT_DATE,",
 						"          INCIDENT_DESCRIPTION,",
 						"          INCIDENT_TYPE,",
-						"          INCIDENT_KEY = INC_KEY,",
+						"          INCIDENT_KEY,",
 						"          EFF_DATE,",
 						"          {FLAG }",
 						"     )) ~> sink1",
@@ -1747,6 +2687,10 @@
 										"FILENAME": "INCIDENT.csv"
 									},
 									"source2": {
+										"SCHEMA_NAME": "dbo",
+										"TABLE_NAME": "PROJECT_INCIDENT_DIM"
+									},
+									"maxsurr": {
 										"SCHEMA_NAME": "dbo",
 										"TABLE_NAME": "PROJECT_INCIDENT_DIM"
 									},
