@@ -12,7 +12,15 @@
 					"name": "source1"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SQLDB_CLOUD",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "multiplerowsfromsingle"
@@ -41,12 +49,29 @@
 				"     format: 'table') ~> source1",
 				"source1 unpivot(output(",
 				"          MONTHSNAME as string,",
-				"          AMOUNT as integer",
+				"          AMOUNT as string",
 				"     ),",
 				"     ungroupBy(YEAR,",
 				"          ACCOUNT),",
 				"     lateral: true,",
-				"     ignoreNullPivots: false) ~> multiplerowsfromsingle"
+				"     ignoreNullPivots: false) ~> multiplerowsfromsingle",
+				"multiplerowsfromsingle sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          YEAR,",
+				"          ACCOUNT,",
+				"          MONTHSNAME,",
+				"          AMOUNT",
+				"     )) ~> sink1"
 			]
 		}
 	}
