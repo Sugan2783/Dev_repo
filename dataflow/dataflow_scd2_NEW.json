@@ -73,7 +73,7 @@
 			],
 			"scriptLines": [
 				"source(output(",
-				"          INCIDENT_ID as integer,",
+				"          INCIDENT_ID as short,",
 				"          INCIDENT_LOCATION as string,",
 				"          INCIDENT_DATE as date,",
 				"          INCIDENT_DESCRIPTION as string,",
