@@ -12,7 +12,15 @@
 					"name": "source1"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SQLDB_CLOUD",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "pivot1"
@@ -35,13 +43,24 @@
 				"cast1 pivot(groupBy(YEAR,",
 				"          ACCOUNT),",
 				"     pivotBy(MONTHSNAME),",
-				"     AMOUNT = sum(AMOUNT),",
+				"     {} = sum(AMOUNT),",
 				"     columnNaming: '$N$V',",
 				"     lateral: true) ~> pivot1",
 				"source1 cast(output(",
 				"          AMOUNT as integer",
 				"     ),",
-				"     errors: true) ~> cast1"
+				"     errors: true) ~> cast1",
+				"pivot1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}
