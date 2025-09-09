@@ -1,5 +1,5 @@
 {
-	"name": "dataflow_scd2_NEW",
+	"name": "dataflow_SCD2_NEW",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {

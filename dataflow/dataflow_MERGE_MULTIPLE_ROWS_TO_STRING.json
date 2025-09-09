@@ -1,0 +1,14 @@
+{
+	"name": "dataflow_MERGE_MULTIPLE_ROWS_TO_STRING",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				""
+			]
+		}
+	}
+}

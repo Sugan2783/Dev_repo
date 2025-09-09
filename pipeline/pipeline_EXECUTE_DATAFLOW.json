@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow_scd2_NEW",
+						"referenceName": "dataflow_SCD2_NEW",
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"source1": {
