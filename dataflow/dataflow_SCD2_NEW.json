@@ -136,7 +136,7 @@
 				"split1@INSERT keyGenerate(output(INC_KEY as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
-				"surrogateKey1, maxsurr join(INCIDENT_KEY == INC_KEY,",
+				"surrogateKey1, maxsurr join(1 == 1,",
 				"     joinType:'cross',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
