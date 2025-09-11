@@ -2343,6 +2343,60 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_EXECUTE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_SCHEMA_DRIFT",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {
+										"CONTAINER": "data",
+										"FOLDER": "Input",
+										"FILENAME": "Claim_Data_Table5.csv"
+									},
+									"sink1": {
+										"CONTAINER": "data",
+										"FOLDER": "Input",
+										"FILENAME": "Claim_Data_Table1.csv"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_SCHEMA_DRIFT')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipeline_EXECUTE_DATAFLOW')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -3128,6 +3182,253 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_CUMMULATIVE')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLS_PARAM",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "window1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Claim_id as short,",
+						"          claimant_name as string,",
+						"          claim_amount as integer,",
+						"          Update_date as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 window(asc(Claim_id, true),",
+						"     sum_salary = sum(claim_amount)) ~> window1",
+						"window1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     recreate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_DUPLICATE_AGG_COLUMN_PATTERN')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLS_PARAM",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Claim_id as short,",
+						"          claimant_name as string,",
+						"          claim_amount as integer,",
+						"          Update_date as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 aggregate(groupBy(Claim_id),",
+						"     each(match(name!='Claim_id'), $$ = first($$))) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     recreate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_DUPLICATE_WINDOW')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLS_PARAM",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Claim_id as short,",
+						"          claimant_name as string,",
+						"          claim_amount as integer,",
+						"          Update_date as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 aggregate(groupBy(Claim_id),",
+						"     claim_amount = max(claim_amount),",
+						"          claimant_name = first(claimant_name)) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     recreate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_MERGE_MULTIPLE_ROWS_TO_SINGLE')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLS_PARAM",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "aggregate1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          project_name as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"aggregate1 derive(project_name = replace(replace(replace(toString(project_name),'\"',\"\"),\"[\",\"\"),\"]\",\" \")) ~> derivedColumn1",
+						"source1 aggregate(groupBy(name),",
+						"     project_name = collect(project_name)) ~> aggregate1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     recreate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflow_PIVOT_COLUMN')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -3196,6 +3497,71 @@
 				}
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_REMOVE_DUPLICATES')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLS_PARAM",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Claim_id as short,",
+						"          claimant_name as string,",
+						"          claim_amount as integer,",
+						"          Update_date as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 aggregate(groupBy(Claim_id),",
+						"     Claim_id_count = count(Claim_id)) ~> aggregate1",
+						"aggregate1 filter(Claim_id_count == 1) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     recreate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
 				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
 			]
 		},
@@ -3329,89 +3695,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
-				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_UNPIVOT')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "SQLDB_CLOUD",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "SQLDB_CLOUD",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "multiplerowsfromsingle"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          YEAR as string,",
-						"          ACCOUNT as string,",
-						"          MONTH1 as string,",
-						"          MONTH2 as string,",
-						"          MONTH3 as string,",
-						"          MONTH4 as string,",
-						"          MONTH5 as string,",
-						"          MONTH6 as string,",
-						"          MONTH7 as string,",
-						"          MONTH8 as string,",
-						"          MONTH9 as string,",
-						"          MONTH10 as string,",
-						"          MONTH11 as string,",
-						"          MONTH12 as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> source1",
-						"source1 unpivot(output(",
-						"          MONTHSNAME as string,",
-						"          AMOUNT as string",
-						"     ),",
-						"     ungroupBy(YEAR,",
-						"          ACCOUNT),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> multiplerowsfromsingle",
-						"multiplerowsfromsingle sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     recreate:true,",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          YEAR,",
-						"          ACCOUNT,",
-						"          MONTHSNAME,",
-						"          AMOUNT",
-						"     )) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
 			]
 		},
@@ -3555,7 +3838,7 @@
 						"split1@INSERT keyGenerate(output(INC_KEY as long),",
 						"     startAt: 1L,",
 						"     stepValue: 1L) ~> surrogateKey1",
-						"surrogateKey1, maxsurr join(INCIDENT_KEY == INC_KEY,",
+						"surrogateKey1, maxsurr join(1 == 1,",
 						"     joinType:'cross',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
@@ -3596,305 +3879,6 @@
 						"          FLAG,",
 						"          END_DATE",
 						"     )) ~> sink2"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
-				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_REMOVE_DUPLICATES')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ADLS_PARAM",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "SQLDB_CLOUD",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "aggregate1"
-						},
-						{
-							"name": "filter1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          Claim_id as short,",
-						"          claimant_name as string,",
-						"          claim_amount as integer,",
-						"          Update_date as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"source1 aggregate(groupBy(Claim_id),",
-						"     Claim_id_count = count(Claim_id)) ~> aggregate1",
-						"aggregate1 filter(Claim_id_count == 1) ~> filter1",
-						"filter1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     recreate:true,",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
-				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline_EXECUTE')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow_REMOVE_DUPLICATES",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"source1": {
-										"CONTAINER": "data",
-										"FOLDER": "Input",
-										"FILENAME": "Claim_Data_Table1.csv"
-									},
-									"sink1": {
-										"SCHEMA_NAME": "dbo",
-										"TABLE_NAME": "dup_value_assign"
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow_REMOVE_DUPLICATES')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_DUPLICATE_WINDOW')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ADLS_PARAM",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "SQLDB_CLOUD",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "aggregate1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          Claim_id as short,",
-						"          claimant_name as string,",
-						"          claim_amount as integer,",
-						"          Update_date as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"source1 aggregate(groupBy(Claim_id),",
-						"     claim_amount = max(claim_amount),",
-						"          claimant_name = first(claimant_name)) ~> aggregate1",
-						"aggregate1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
-				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_CUMMULATIVE')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ADLS_PARAM",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "SQLDB_CLOUD",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "window1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          Claim_id as short,",
-						"          claimant_name as string,",
-						"          claim_amount as integer,",
-						"          Update_date as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"source1 window(asc(Claim_id, true),",
-						"     sum_salary = sum(claim_amount)) ~> window1",
-						"window1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
-				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_DUPLICATE_AGG_COLUMN_PATTERN')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ADLS_PARAM",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "SQLDB_CLOUD",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "aggregate1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          Claim_id as short,",
-						"          claimant_name as string,",
-						"          claim_amount as integer,",
-						"          Update_date as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"source1 aggregate(groupBy(Claim_id),",
-						"     each(match(name != 'Claim_id'), $$ = first($$))) ~> aggregate1",
-						"aggregate1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 					]
 				}
 			},
@@ -3958,6 +3942,7 @@
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:false,",
+						"     recreate:true,",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
@@ -3971,7 +3956,90 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_MERGE_MULTIPLE_ROWS_TO_SINGLE')]",
+			"name": "[concat(parameters('factoryName'), '/dataflow_UNPIVOT')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_CLOUD",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "multiplerowsfromsingle"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          YEAR as string,",
+						"          ACCOUNT as string,",
+						"          MONTH1 as string,",
+						"          MONTH2 as string,",
+						"          MONTH3 as string,",
+						"          MONTH4 as string,",
+						"          MONTH5 as string,",
+						"          MONTH6 as string,",
+						"          MONTH7 as string,",
+						"          MONTH8 as string,",
+						"          MONTH9 as string,",
+						"          MONTH10 as string,",
+						"          MONTH11 as string,",
+						"          MONTH12 as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 unpivot(output(",
+						"          MONTHSNAME as string,",
+						"          AMOUNT as string",
+						"     ),",
+						"     ungroupBy(YEAR,",
+						"          ACCOUNT),",
+						"     lateral: true,",
+						"     ignoreNullPivots: false) ~> multiplerowsfromsingle",
+						"multiplerowsfromsingle sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     recreate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          YEAR,",
+						"          ACCOUNT,",
+						"          MONTHSNAME,",
+						"          AMOUNT",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_SCHEMA_DRIFT')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -3989,7 +4057,7 @@
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "SQLDB_CLOUD",
+								"referenceName": "ADLS_PARAM",
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
@@ -3998,40 +4066,34 @@
 					"transformations": [
 						{
 							"name": "derivedColumn1"
-						},
-						{
-							"name": "aggregate1"
 						}
 					],
 					"scriptLines": [
 						"source(output(",
-						"          name as string,",
-						"          project_name as string",
+						"          Claim_id as short,",
+						"          claimant_name as string,",
+						"          claim_amount as integer,",
+						"          Update_date as string,",
+						"          status as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> source1",
-						"aggregate1 derive(project_name = replace(replace(replace(toString(project_name),'\"',\"\"),\"[\",\"\"),\"]\",\" \")\r",
-						") ~> derivedColumn1",
-						"source1 aggregate(groupBy(name),",
-						"     project_name = collect(project_name)) ~> aggregate1",
+						"source1 derive(Update_date = dayOfMonth(toDate(Update_date, 'yyyy-MM-dd HH:mm:ss'))) ~> derivedColumn1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     recreate:true,",
-						"     format: 'table',",
+						"     partitionFileNames:['Claim_Data_Table1.csv'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]",
-				"[concat(variables('factoryId'), '/datasets/SQLDB_CLOUD')]"
+				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]"
 			]
 		}
 	]
