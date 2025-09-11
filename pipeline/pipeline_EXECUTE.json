@@ -15,22 +15,6 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"dataflow": {
-						"referenceName": "dataflow_SCHEMA_DRIFT_SRC_MISSING_CLMN",
-						"type": "DataFlowReference",
-						"datasetParameters": {
-							"source1": {
-								"CONTAINER": "data",
-								"FOLDER": "Input",
-								"FILENAME": "dbo_learnit_batch_employee9.csv"
-							},
-							"sink1": {
-								"CONTAINER": "data",
-								"FOLDER": "Input",
-								"FILENAME": "dbo_learnit_batch_employee.csv"
-							}
-						}
-					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
