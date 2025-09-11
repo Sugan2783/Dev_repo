@@ -22,7 +22,7 @@
 							"source1": {
 								"CONTAINER": "data",
 								"FOLDER": "Input",
-								"FILENAME": "Claim_Data_Table5.csv"
+								"FILENAME": "Claim_Data_Table2.csv"
 							},
 							"sink1": {
 								"CONTAINER": "data",
