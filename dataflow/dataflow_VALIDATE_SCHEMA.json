@@ -47,6 +47,12 @@
 				"     outputAssertFailedRows: true,",
 				"     assertFailure_fileSystem: 'data',",
 				"     assertFailure_folderPath: 'ARCHIVE',",
+				"     mapColumn(",
+				"          Claim_id,",
+				"          claimant_name,",
+				"          claim_amount,",
+				"          Update_date",
+				"     ),",
 				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
