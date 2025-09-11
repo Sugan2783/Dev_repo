@@ -2955,7 +2955,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_SPLIT_SINGLEROW_MULTIPLE_ROW')]",
+			"name": "[concat(parameters('factoryName'), '/dataflow_SCHEMA_DRIFT')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -2973,7 +2973,7 @@
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "SQLDB_CLOUD",
+								"referenceName": "ADLS_PARAM",
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
@@ -2982,38 +2982,29 @@
 					"transformations": [
 						{
 							"name": "derivedColumn1"
-						},
-						{
-							"name": "flatten1"
 						}
 					],
 					"scriptLines": [
 						"source(output(",
-						"          name as string,",
-						"          project_name as string",
+						"          Claim_id as short,",
+						"          claimant_name as string,",
+						"          claim_amount as integer,",
+						"          Update_date as string,",
+						"          status as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> source1",
-						"source1 derive(project_name = split(project_name,\",\")) ~> derivedColumn1",
-						"derivedColumn1 foldDown(unroll(project_name),",
-						"     mapColumn(",
-						"          name,",
-						"          project_name",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten1",
-						"flatten1 sink(allowSchemaDrift: true,",
+						"source1 derive(Update_date = dayOfMonth(toDate(Update_date, 'yyyy-MM-dd HH:mm:ss'))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     recreate:true,",
-						"     format: 'table',",
+						"     partitionFileNames:['Claim_Data_Table1.csv'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},
