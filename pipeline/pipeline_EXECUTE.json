@@ -16,17 +16,18 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow_REMOVE_DUPLICATES",
+						"referenceName": "dataflow_SCHEMA_DRIFT",
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"source1": {
 								"CONTAINER": "data",
 								"FOLDER": "Input",
-								"FILENAME": "Claim_Data_Table1.csv"
+								"FILENAME": "Claim_Data_Table5.csv"
 							},
 							"sink1": {
-								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "dup_value_assign"
+								"CONTAINER": "data",
+								"FOLDER": "Input",
+								"FILENAME": "Claim_Data_Table1.csv"
 							}
 						}
 					},
