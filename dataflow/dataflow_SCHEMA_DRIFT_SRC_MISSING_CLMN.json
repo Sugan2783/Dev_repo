@@ -21,24 +21,12 @@
 					"name": "sink1"
 				}
 			],
-			"transformations": [
-				{
-					"name": "derivedColumn1"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
-				"source(output(",
-				"          Claim_id as short,",
-				"          claimant_name as string,",
-				"          claim_amount as integer,",
-				"          Update_date as string,",
-				"          status as string",
-				"     ),",
-				"     allowSchemaDrift: true,",
+				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> source1",
-				"source1 derive(Update_date = dayOfMonth(toDate(Update_date, 'yyyy-MM-dd HH:mm:ss'))) ~> derivedColumn1",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['dbo_learnit_batch_employee.csv'],",
 				"     umask: 0022,",
