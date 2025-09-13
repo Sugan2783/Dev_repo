@@ -26,7 +26,7 @@
 				"          Customer_Id as integer,",
 				"          Customer_First_Name as string,",
 				"          Customer_Last_Name as string,",
-				"          Customer_DOB as date,",
+				"          Customer_DOB as string,",
 				"          Customer_Type as string,",
 				"          Is_Loyal as boolean,",
 				"          First_Purchase_Date as date",
@@ -35,7 +35,9 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> source1",
 				"assert1 derive() ~> derivedColumn1",
-				"source1 assert(expectTrue(Customer_Id, false, 'uniqueid')) ~> assert1"
+				"source1 assert(expectUnique(Customer_First_Name, false, 'uniqueid'),",
+				"     expectTrue(! isNull(toDate((Customer_DOB), 'yyyy-MM-dd'))\r",
+				", false, 'Datecheck')) ~> assert1"
 			]
 		}
 	}
