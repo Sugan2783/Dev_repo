@@ -13,11 +13,29 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "assert1"
+				}
+			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
+				"source(output(",
+				"          Customer_Id as integer,",
+				"          Customer_First_Name as string,",
+				"          Customer_Last_Name as string,",
+				"          Customer_DOB as date,",
+				"          Customer_Type as string,",
+				"          Is_Loyal as boolean,",
+				"          First_Purchase_Date as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> source1"
+				"     ignoreNoFilesFound: false) ~> source1",
+				"assert1 derive() ~> derivedColumn1",
+				"source1 assert(expectTrue(Customer_Id, false, 'uniqueid')) ~> assert1"
 			]
 		}
 	}
