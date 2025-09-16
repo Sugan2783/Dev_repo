@@ -4,7 +4,7 @@
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
-			"url": "https://raw.githubusercontent.com/Sugan2783",
+			"url": "https://raw.githubusercontent.com/Sugan2783/",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
