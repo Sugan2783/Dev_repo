@@ -35,7 +35,85 @@
 							"fileExtension": ".txt"
 						}
 					},
-					"enableStaging": false
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "$['country']"
+								},
+								"sink": {
+									"name": "country",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['country abbreviation']"
+								},
+								"sink": {
+									"name": "country abbreviation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['post code']"
+								},
+								"sink": {
+									"name": "post code",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['places'][0]['place name']"
+								},
+								"sink": {
+									"name": "place name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['places'][0]['longitude']"
+								},
+								"sink": {
+									"name": "longitude",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['places'][0]['latitude']"
+								},
+								"sink": {
+									"name": "latitude",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['places'][0]['state']"
+								},
+								"sink": {
+									"name": "state",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['places'][0]['state abbreviation']"
+								},
+								"sink": {
+									"name": "state abbreviation",
+									"type": "String"
+								}
+							}
+						],
+						"collectionReference": "$['places']"
+					}
 				},
 				"inputs": [
 					{
