@@ -59,7 +59,7 @@
 						"parameters": {
 							"CONTAINER": "data",
 							"FOLDER": "Output",
-							"FILENAME": "Hospital_config.csv"
+							"FILENAME": "Hospital_Claim.csv"
 						}
 					}
 				]
