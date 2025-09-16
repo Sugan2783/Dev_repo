@@ -1,0 +1,12 @@
+{
+	"name": "RestService_HOSPITAL",
+	"properties": {
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://raw.githubusercontent.com/Sugan2783/Trendytech-Azure-Project/refs/heads/main/datasets/load_config.csv",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
