@@ -4,7 +4,7 @@
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
-			"url": "https://raw.githubusercontent.com/Sugan2783//Trendytech-Azure-Project/refs/heads/main/datasets/claims/hospital1_claim_data.csv",
+			"url": "http://api.zippopotam.us/us/98121?post code=98121",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
