@@ -1,0 +1,12 @@
+{
+	"name": "RestResource_hospital",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "RestService_HOSPITAL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	}
+}
