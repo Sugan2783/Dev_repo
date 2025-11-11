@@ -21,7 +21,10 @@
 						"parameters": {
 							"CONTAINER": "data",
 							"FOLDER": "Output",
-							"FILENAME": "Claim_Data_Table1.csv"
+							"FILENAME": {
+								"value": "  ",
+								"type": "Expression"
+							}
 						}
 					},
 					"fieldList": [
