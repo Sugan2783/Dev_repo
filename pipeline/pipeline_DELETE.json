@@ -20,7 +20,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"CONTAINER": "data",
-							"FOLDER": "Iutput",
+							"FOLDER": "Output",
 							"FILENAME": "Claim_Data_Table1.csv"
 						}
 					},
@@ -72,7 +72,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"CONTAINER": "data",
-										"FOLDER": "Iutput",
+										"FOLDER": "Output",
 										"FILENAME": "Claim_Data_Table1.csv"
 									}
 								},
