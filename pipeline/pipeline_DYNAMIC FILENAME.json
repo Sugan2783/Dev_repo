@@ -17,9 +17,19 @@
 				"typeProperties": {
 					"dataset": {
 						"referenceName": "ADLS_PARAM",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"CONTAINER": "data",
+							"FOLDER": "Input",
+							"FILENAME": {
+								"value": "  ",
+								"type": "Expression"
+							}
+						}
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems"
+					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
 						"enablePartitionDiscovery": false
@@ -27,6 +37,116 @@
 					"formatSettings": {
 						"type": "DelimitedTextReadSettings"
 					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata1').output.childItems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(activity('Get Metadata1').output.itemName, 'Claim_Data_Table1.csv')\r\n",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Copy data1",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"storeSettings": {
+													"type": "AzureBlobFSReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings",
+													"copyBehavior": "PreserveHierarchy"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "ADLS_PARAM",
+												"type": "DatasetReference",
+												"parameters": {
+													"CONTAINER": "data",
+													"FOLDER": "Input",
+													"FILENAME": {
+														"value": "@item()",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "ADLS_PARAM",
+												"type": "DatasetReference",
+												"parameters": {
+													"CONTAINER": "data",
+													"FOLDER": "Output",
+													"FILENAME": {
+														"value": "@item()",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									}
+								]
+							}
+						}
+					]
 				}
 			}
 		],
