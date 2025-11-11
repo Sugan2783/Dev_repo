@@ -25,7 +25,7 @@
 						}
 					},
 					"fieldList": [
-						"lastModified"
+						"childItems"
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
@@ -50,7 +50,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@greater(activity('Get Metadata1').output.lastModified, 30)",
+						"value": "@activity('Get Metadata1').output.childItems",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
@@ -87,6 +87,10 @@
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
 									"recursive": true,
+									"modifiedDatetimeEnd": {
+										"value": "@adddays(utcNow(), -30)",
+										"type": "Expression"
+									},
 									"enablePartitionDiscovery": false
 								}
 							}
