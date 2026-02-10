@@ -386,10 +386,12 @@
 				},
 				"parameters": {
 					"pipeline_startdate": {
-						"type": "string"
+						"type": "string",
+						"defaultValue": "@triggeroutputs().windowstarttime"
 					},
 					"pipeline_enddate": {
-						"type": "string"
+						"type": "string",
+						"defaultValue": "@triggeroutputs().windowendtime"
 					}
 				},
 				"folder": {
