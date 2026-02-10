@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'SqlServer1'"
 		},
+		"API_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://api.zippopotam.us/us/98121?post code=98121"
+		},
 		"AzureBlobStorage1_sasUri": {
 			"type": "secureString",
 			"metadata": "Secure string for 'sasUri' of 'AzureBlobStorage1'"
@@ -51,6 +55,14 @@
 			"type": "string",
 			"defaultValue": "https://bsdevsuganthi.dfs.core.windows.net/"
 		},
+		"HttpServer1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://raw.githubusercontent.com/Sugan2783/Trendytech-Azure-Project/refs/heads/main/datasets/claims/hospital1_claim_data.csv"
+		},
+		"RestService_HOSPITAL_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://raw.githubusercontent.com/Sugan2783/Trendytech-Azure-Project/refs/heads/main/datasets/load_config.csv"
+		},
 		"SN_CONTROL_properties_typeProperties_database": {
 			"type": "string",
 			"defaultValue": "GOLD"
@@ -70,6 +82,14 @@
 		"SqlServer1_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "sa"
+		},
+		"tr_tumbling_properties_pipeline_parameters_pipeline_startdate": {
+			"type": "string",
+			"defaultValue": "@triggeroutputs().windowstarttime"
+		},
+		"tr_tumbling_properties_pipeline_parameters_pipeline_enddate": {
+			"type": "string",
+			"defaultValue": "@triggeroutputs().windowendtime"
 		},
 		"SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId": {
 			"type": "string",
@@ -114,6 +134,9 @@
 					"SqlServer1_password": {
 						"value": "[parameters('SqlServer1_password')]"
 					},
+					"API_properties_typeProperties_url": {
+						"value": "[parameters('API_properties_typeProperties_url')]"
+					},
 					"AzureBlobStorage1_sasUri": {
 						"value": "[parameters('AzureBlobStorage1_sasUri')]"
 					},
@@ -131,6 +154,12 @@
 					},
 					"BLOB_sasUri": {
 						"value": "[parameters('BLOB_sasUri')]"
+					},
+					"HttpServer1_properties_typeProperties_url": {
+						"value": "[parameters('HttpServer1_properties_typeProperties_url')]"
+					},
+					"RestService_HOSPITAL_properties_typeProperties_url": {
+						"value": "[parameters('RestService_HOSPITAL_properties_typeProperties_url')]"
 					},
 					"SN_CONTROL_properties_typeProperties_database": {
 						"value": "[parameters('SN_CONTROL_properties_typeProperties_database')]"
@@ -190,6 +219,12 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"tr_tumbling_properties_pipeline_parameters_pipeline_startdate": {
+						"value": "[parameters('tr_tumbling_properties_pipeline_parameters_pipeline_startdate')]"
+					},
+					"tr_tumbling_properties_pipeline_parameters_pipeline_enddate": {
+						"value": "[parameters('tr_tumbling_properties_pipeline_parameters_pipeline_enddate')]"
 					}
 				}
 			},

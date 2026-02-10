@@ -17,6 +17,9 @@
 		"SqlServer1_password": {
 			"value": ""
 		},
+		"API_properties_typeProperties_url": {
+			"value": "http://api.zippopotam.us/us/98121?post code=98121"
+		},
 		"AzureBlobStorage1_sasUri": {
 			"value": ""
 		},
@@ -38,6 +41,12 @@
 		"DevStorageLinkService_properties_typeProperties_url": {
 			"value": "https://bsdevsuganthi.dfs.core.windows.net/"
 		},
+		"HttpServer1_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com/Sugan2783/Trendytech-Azure-Project/refs/heads/main/datasets/claims/hospital1_claim_data.csv"
+		},
+		"RestService_HOSPITAL_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com/Sugan2783/Trendytech-Azure-Project/refs/heads/main/datasets/load_config.csv"
+		},
 		"SN_CONTROL_properties_typeProperties_database": {
 			"value": "GOLD"
 		},
@@ -52,6 +61,12 @@
 		},
 		"SqlServer1_properties_typeProperties_userName": {
 			"value": "sa"
+		},
+		"tr_tumbling_properties_pipeline_parameters_pipeline_startdate": {
+			"value": "@triggeroutputs().windowstarttime"
+		},
+		"tr_tumbling_properties_pipeline_parameters_pipeline_enddate": {
+			"value": "@triggeroutputs().windowendtime"
 		},
 		"SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId": {
 			"value": "/subscriptions/6cda72ae-09db-4ac7-a49f-757ca002a156/resourcegroups/SUGANTHI_RGROUP/providers/Microsoft.DataFactory/factories/suganthidfactory/integrationruntimes/SELFHOSTEDIR"
