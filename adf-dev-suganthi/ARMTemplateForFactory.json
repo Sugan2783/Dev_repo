@@ -3295,6 +3295,8 @@
 										"value": "@pipeline().parameters.pipeline_enddate",
 										"type": "Expression"
 									},
+									"wildcardFolderPath": "data/Landing",
+									"wildcardFileName": "*",
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -3327,8 +3329,14 @@
 								"referenceName": "ADLS_PARAM",
 								"type": "DatasetReference",
 								"parameters": {
-									"CONTAINER": "data",
-									"FOLDER": "Landing",
+									"CONTAINER": {
+										"value": " ",
+										"type": "Expression"
+									},
+									"FOLDER": {
+										"value": " ",
+										"type": "Expression"
+									},
 									"FILENAME": {
 										"value": " ",
 										"type": "Expression"
