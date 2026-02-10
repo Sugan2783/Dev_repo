@@ -59,22 +59,8 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "ADLS_PARAM",
-						"type": "DatasetReference",
-						"parameters": {
-							"CONTAINER": {
-								"value": " ",
-								"type": "Expression"
-							},
-							"FOLDER": {
-								"value": " ",
-								"type": "Expression"
-							},
-							"FILENAME": {
-								"value": " ",
-								"type": "Expression"
-							}
-						}
+						"referenceName": "tumb",
+						"type": "DatasetReference"
 					}
 				],
 				"outputs": [

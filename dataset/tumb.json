@@ -1,0 +1,48 @@
+{
+	"name": "tumb",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DevStorageLinkService",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "Landing",
+				"fileSystem": "data"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "icd_code",
+				"type": "String"
+			},
+			{
+				"name": "icd_code_type",
+				"type": "String"
+			},
+			{
+				"name": "code_description",
+				"type": "String"
+			},
+			{
+				"name": "inserted_date",
+				"type": "String"
+			},
+			{
+				"name": "updated_date",
+				"type": "String"
+			},
+			{
+				"name": "is_current_flag",
+				"type": "String"
+			}
+		]
+	}
+}
