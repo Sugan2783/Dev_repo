@@ -28,7 +28,7 @@
 								"value": "@pipeline().parameters.pipeline_enddate",
 								"type": "Expression"
 							},
-							"wildcardFolderPath": "data/Landing",
+							"wildcardFolderPath": "data",
 							"wildcardFileName": "*",
 							"enablePartitionDiscovery": false
 						},
