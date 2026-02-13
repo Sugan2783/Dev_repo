@@ -62,12 +62,6 @@
 		"SqlServer1_properties_typeProperties_userName": {
 			"value": "sa"
 		},
-		"tr_tumbling_properties_pipeline_parameters_pipeline_startdate": {
-			"value": "@triggeroutputs().windowstarttime"
-		},
-		"tr_tumbling_properties_pipeline_parameters_pipeline_enddate": {
-			"value": "@triggeroutputs().windowendtime"
-		},
 		"SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId": {
 			"value": "/subscriptions/6cda72ae-09db-4ac7-a49f-757ca002a156/resourcegroups/SUGANTHI_RGROUP/providers/Microsoft.DataFactory/factories/suganthidfactory/integrationruntimes/SELFHOSTEDIR"
 		},

@@ -83,14 +83,6 @@
 			"type": "string",
 			"defaultValue": "sa"
 		},
-		"tr_tumbling_properties_pipeline_parameters_pipeline_startdate": {
-			"type": "string",
-			"defaultValue": "@triggeroutputs().windowstarttime"
-		},
-		"tr_tumbling_properties_pipeline_parameters_pipeline_enddate": {
-			"type": "string",
-			"defaultValue": "@triggeroutputs().windowendtime"
-		},
 		"SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId": {
 			"type": "string",
 			"defaultValue": "/subscriptions/6cda72ae-09db-4ac7-a49f-757ca002a156/resourcegroups/SUGANTHI_RGROUP/providers/Microsoft.DataFactory/factories/suganthidfactory/integrationruntimes/SELFHOSTEDIR"
@@ -3295,7 +3287,7 @@
 										"value": "@pipeline().parameters.pipeline_enddate",
 										"type": "Expression"
 									},
-									"wildcardFolderPath": "data/Landing",
+									"wildcardFolderPath": "data",
 									"wildcardFileName": "*",
 									"enablePartitionDiscovery": false
 								},
@@ -3326,22 +3318,9 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "ADLS_PARAM",
+								"referenceName": "tumb",
 								"type": "DatasetReference",
-								"parameters": {
-									"CONTAINER": {
-										"value": " ",
-										"type": "Expression"
-									},
-									"FOLDER": {
-										"value": " ",
-										"type": "Expression"
-									},
-									"FILENAME": {
-										"value": " ",
-										"type": "Expression"
-									}
-								}
+								"parameters": {}
 							}
 						],
 						"outputs": [
@@ -3382,6 +3361,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/tumb')]",
 				"[concat(variables('factoryId'), '/datasets/ADLS_PARAM')]"
 			]
 		},
@@ -3947,6 +3927,59 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/tumb')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DevStorageLinkService",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Landing",
+						"fileSystem": "data"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "icd_code",
+						"type": "String"
+					},
+					{
+						"name": "icd_code_type",
+						"type": "String"
+					},
+					{
+						"name": "code_description",
+						"type": "String"
+					},
+					{
+						"name": "inserted_date",
+						"type": "String"
+					},
+					{
+						"name": "updated_date",
+						"type": "String"
+					},
+					{
+						"name": "is_current_flag",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/DevStorageLinkService')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/API')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -4145,42 +4178,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/integrationRuntimes/SELFHOSTEDIRSQL')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/tr_tumbling')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "pipeline_TUMBLING",
-						"type": "PipelineReference"
-					},
-					"parameters": {
-						"pipeline_startdate": "[parameters('tr_tumbling_properties_pipeline_parameters_pipeline_startdate')]",
-						"pipeline_enddate": "[parameters('tr_tumbling_properties_pipeline_parameters_pipeline_enddate')]"
-					}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Minute",
-					"interval": 5,
-					"startTime": "2026-02-10T21:25:00Z",
-					"endTime": "2026-02-11T21:40:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"count": 1,
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pipeline_TUMBLING')]"
 			]
 		},
 		{
