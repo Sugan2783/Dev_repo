@@ -26,12 +26,33 @@
 							"type": "DelimitedTextReadSettings"
 						}
 					},
+					"sink": {
+						"type": "SnowflakeV2Sink",
+						"importSettings": {
+							"type": "SnowflakeImportCopyCommand"
+						}
+					},
 					"enableStaging": false
 				},
 				"inputs": [
 					{
 						"referenceName": "ds_finance",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "data",
+							"folder": "Finance",
+							"filename": "finance_report.csv"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SNOWFLAKE_PARAM",
+						"type": "DatasetReference",
+						"parameters": {
+							"SN_SCHEMA": "PUBLIC",
+							"SN_TABLE": "FINANCE_REPORT"
+						}
 					}
 				]
 			}

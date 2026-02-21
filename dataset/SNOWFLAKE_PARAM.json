@@ -2,7 +2,7 @@
 	"name": "SNOWFLAKE_PARAM",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "SN_CONTROL",
+			"referenceName": "Snowflake_finance",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
@@ -17,8 +17,14 @@
 		"type": "SnowflakeV2Table",
 		"schema": [],
 		"typeProperties": {
-			"schema": "CLAIMS",
-			"table": "CONTROL_TABLE_BATCH_001"
+			"schema": {
+				"value": "@dataset().SN_SCHEMA",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().SN_TABLE",
+				"type": "Expression"
+			}
 		}
 	}
 }
