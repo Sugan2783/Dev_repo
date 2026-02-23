@@ -27,12 +27,21 @@
 						}
 					},
 					"sink": {
-						"type": "SnowflakeV2Sink",
-						"importSettings": {
-							"type": "SnowflakeImportCopyCommand"
-						}
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
 					},
-					"enableStaging": false
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
 				},
 				"inputs": [
 					{
@@ -47,11 +56,11 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "SNOWFLAKE_PARAM",
+						"referenceName": "SQL_DB_FINANCE",
 						"type": "DatasetReference",
 						"parameters": {
-							"SN_SCHEMA": "PUBLIC",
-							"SN_TABLE": "FINANCE_REPORT"
+							"schema_name": "dbo",
+							"table_name": "finance_report"
 						}
 					}
 				]
