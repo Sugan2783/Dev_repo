@@ -19,9 +19,9 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'Snowflake1'"
 		},
-		"SqlServer1_password": {
+		"Snowflake_finance_password": {
 			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'SqlServer1'"
+			"metadata": "Secure string for 'password' of 'Snowflake_finance'"
 		},
 		"API_properties_typeProperties_url": {
 			"type": "string",
@@ -67,25 +67,13 @@
 			"type": "string",
 			"defaultValue": "GOLD"
 		},
+		"Snowflake_finance_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "INSURANCE"
+		},
 		"SELFHOSTEDIRSQL_properties_typeProperties_linkedInfo_resourceId": {
 			"type": "string",
 			"defaultValue": "/subscriptions/6cda72ae-09db-4ac7-a49f-757ca002a156/resourcegroups/SUGANTHI_RGROUP/providers/Microsoft.DataFactory/factories/suganthidfactory/integrationruntimes/SELFHOSTEDIR"
-		},
-		"DevStorageLinkService_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://bsdevsuganthi.dfs.core.windows.net/"
-		},
-		"SqlServer1_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "BALAFAMILY\\SQLSERVER2017"
-		},
-		"SqlServer1_properties_typeProperties_database": {
-			"type": "string",
-			"defaultValue": "SQL_TRAINING_2024"
-		},
-		"SqlServer1_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "sa"
 		}
 	},
 	"variables": {
@@ -237,6 +225,29 @@
 						"type": "SecureString",
 						"value": "[parameters('Snowflake1_password')]"
 					}
+				},
+				"version": "1.1"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Snowflake_finance')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SnowflakeV2",
+				"typeProperties": {
+					"authenticationType": "Basic",
+					"accountIdentifier": "cclbbue-yd14545",
+					"user": "SUGANTHI",
+					"database": "[parameters('Snowflake_finance_properties_typeProperties_database')]",
+					"warehouse": "COMPUTE_WH",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('Snowflake_finance_password')]"
+					},
+					"useUtcTimestamps": false
 				},
 				"version": "1.1"
 			},
@@ -461,7 +472,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "SN_CONTROL",
+					"referenceName": "Snowflake_finance",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -476,12 +487,18 @@
 				"type": "SnowflakeV2Table",
 				"schema": [],
 				"typeProperties": {
-					"schema": "CLAIMS",
-					"table": "CONTROL_TABLE_BATCH_001"
+					"schema": {
+						"value": "@dataset().SN_SCHEMA",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().SN_TABLE",
+						"type": "Expression"
+					}
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SN_CONTROL')]"
+				"[concat(variables('factoryId'), '/linkedServices/Snowflake_finance')]"
 			]
 		},
 		{
@@ -574,54 +591,38 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DevStorageLinkService')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"name": "[concat(parameters('factoryName'), '/SQL_DB_FINANCE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('DevStorageLinkService_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "AzureKeyVault1",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "scblobstorage"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SqlServer1')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "SqlServer",
-				"typeProperties": {
-					"server": "[parameters('SqlServer1_properties_typeProperties_server')]",
-					"database": "[parameters('SqlServer1_properties_typeProperties_database')]",
-					"encrypt": "mandatory",
-					"trustServerCertificate": true,
-					"authenticationType": "SQL",
-					"userName": "[parameters('SqlServer1_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('SqlServer1_password')]"
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema_name": {
+						"type": "string"
+					},
+					"table_name": {
+						"type": "string"
 					}
 				},
-				"connectVia": {
-					"referenceName": "SELFHOSTEDIRSQL",
-					"type": "IntegrationRuntimeReference"
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema_name",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table_name",
+						"type": "Expression"
+					}
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/integrationRuntimes/SELFHOSTEDIRSQL')]"
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
 			]
 		}
 	]

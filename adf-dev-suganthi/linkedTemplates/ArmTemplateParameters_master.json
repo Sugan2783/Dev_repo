@@ -14,6 +14,9 @@
 		"Snowflake1_password": {
 			"value": ""
 		},
+		"Snowflake_finance_password": {
+			"value": ""
+		},
 		"SqlServer1_password": {
 			"value": ""
 		},
@@ -52,6 +55,9 @@
 		},
 		"Snowflake1_properties_typeProperties_database": {
 			"value": "GOLD"
+		},
+		"Snowflake_finance_properties_typeProperties_database": {
+			"value": "INSURANCE"
 		},
 		"SqlServer1_properties_typeProperties_server": {
 			"value": "BALAFAMILY\\SQLSERVER2017"
