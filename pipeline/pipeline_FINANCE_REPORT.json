@@ -50,7 +50,7 @@
 						"parameters": {
 							"container": "data",
 							"folder": "Finance",
-							"filename": "finance_report.csv"
+							"filename": "financial_loan.csv"
 						}
 					}
 				],
@@ -60,7 +60,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"schema_name": "dbo",
-							"table_name": "finance_report"
+							"table_name": "financial_loan"
 						}
 					}
 				]
