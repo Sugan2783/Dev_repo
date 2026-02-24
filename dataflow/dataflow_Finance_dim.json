@@ -12,14 +12,28 @@
 						"referenceName": "ADLS_PARAM",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "FINANCIALLOAN"
 				},
 				{
-					"name": "source2"
+					"dataset": {
+						"referenceName": "SQL_DB_FINANCE",
+						"type": "DatasetReference"
+					},
+					"name": "DIMFINANCIALLOAN"
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          id as integer,",
@@ -49,9 +63,86 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> source1",
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> source2"
+				"     ignoreNoFilesFound: false) ~> FINANCIALLOAN",
+				"source(output(",
+				"          finance_dim_key as integer,",
+				"          id as integer,",
+				"          address_state as string,",
+				"          application_type as string,",
+				"          emp_length as string,",
+				"          emp_title as string,",
+				"          grade as string,",
+				"          home_ownership as string,",
+				"          issue_date as date,",
+				"          last_credit_pull_date as date,",
+				"          last_payment_date as date,",
+				"          loan_status as string,",
+				"          next_payment_date as date,",
+				"          member_id as integer,",
+				"          purpose as string,",
+				"          sub_grade as string,",
+				"          term as string,",
+				"          verification_status as string,",
+				"          annual_income as decimal(18,0),",
+				"          dti as decimal(18,0),",
+				"          installment as integer,",
+				"          int_rate as decimal(18,0),",
+				"          loan_amount as decimal(18,0),",
+				"          total_acc as integer,",
+				"          total_payment as decimal(18,0),",
+				"          checksum_val as string,",
+				"          flag as string,",
+				"          eff_date as date,",
+				"          end_date as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT * FROM DBO.DIM_FINANCIAL_LOAN WHERE FLAG = \\'Y\\'',",
+				"     format: 'query') ~> DIMFINANCIALLOAN",
+				"FINANCIALLOAN, DIMFINANCIALLOAN lookup(FINANCIALLOAN@id == DIMFINANCIALLOAN@id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 derive(INSERT_UPDATE_FLAG = iif(isNull(DIMFINANCIALLOAN@id), 'I', iif(not(isNull(DIMFINANCIALLOAN@id)) && :src_md5 != :tgt_md5, 'U',''))\r",
+				",",
+				"          src_md5 := md5(FINANCIALLOAN@address_state,FINANCIALLOAN@application_type,FINANCIALLOAN@emp_length),",
+				"          tgt_md5 := md5(DIMFINANCIALLOAN@address_state,DIMFINANCIALLOAN@application_type,DIMFINANCIALLOAN@emp_length)) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          id = FINANCIALLOAN@id,",
+				"          address_state = FINANCIALLOAN@address_state,",
+				"          application_type = FINANCIALLOAN@application_type,",
+				"          emp_length = FINANCIALLOAN@emp_length,",
+				"          emp_title = FINANCIALLOAN@emp_title,",
+				"          grade = FINANCIALLOAN@grade,",
+				"          home_ownership = FINANCIALLOAN@home_ownership,",
+				"          issue_date = FINANCIALLOAN@issue_date,",
+				"          last_credit_pull_date = FINANCIALLOAN@last_credit_pull_date,",
+				"          last_payment_date = FINANCIALLOAN@last_payment_date,",
+				"          loan_status = FINANCIALLOAN@loan_status,",
+				"          next_payment_date = FINANCIALLOAN@next_payment_date,",
+				"          member_id = FINANCIALLOAN@member_id,",
+				"          purpose = FINANCIALLOAN@purpose,",
+				"          sub_grade = FINANCIALLOAN@sub_grade,",
+				"          term = FINANCIALLOAN@term,",
+				"          verification_status = FINANCIALLOAN@verification_status,",
+				"          annual_income = FINANCIALLOAN@annual_income,",
+				"          dti = FINANCIALLOAN@dti,",
+				"          installment = FINANCIALLOAN@installment,",
+				"          int_rate = FINANCIALLOAN@int_rate,",
+				"          loan_amount = FINANCIALLOAN@loan_amount,",
+				"          total_acc = FINANCIALLOAN@total_acc,",
+				"          total_payment = FINANCIALLOAN@total_payment,",
+				"          finance_dim_key,",
+				"          id = DIMFINANCIALLOAN@id,",
+				"          checksum_val,",
+				"          flag,",
+				"          eff_date,",
+				"          end_date,",
+				"          INSERT_UPDATE_FLAG",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1"
 			]
 		}
 	}
