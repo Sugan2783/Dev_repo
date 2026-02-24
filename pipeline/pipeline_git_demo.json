@@ -1,0 +1,20 @@
+{
+	"name": "pipeline_git_demo",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 5
+				}
+			}
+		],
+		"folder": {
+			"name": "ADV_PRACTICE"
+		},
+		"annotations": []
+	}
+}
