@@ -13,6 +13,197 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pip_UNTIL_FILE_EXISTS')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Until1",
+						"type": "Until",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@variables('file_exists')",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata1",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "ADLS_PARAM",
+											"type": "DatasetReference",
+											"parameters": {
+												"CONTAINER": "data",
+												"FOLDER": "Input",
+												"FILENAME": "Claim_Data_Table1.csv"
+											}
+										},
+										"fieldList": [
+											"exists"
+										],
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										},
+										"formatSettings": {
+											"type": "DelimitedTextReadSettings"
+										}
+									}
+								},
+								{
+									"name": "If Condition1",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Get Metadata1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(activity('Get Metadata1').output.exists,true)",
+											"type": "Expression"
+										},
+										"ifFalseActivities": [
+											{
+												"name": "Wait1",
+												"type": "Wait",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"waitTimeInSeconds": 30
+												}
+											}
+										],
+										"ifTrueActivities": [
+											{
+												"name": "Set variable1",
+												"type": "SetVariable",
+												"dependsOn": [],
+												"policy": {
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"variableName": "file_exists",
+													"value": true
+												}
+											},
+											{
+												"name": "Copy data1",
+												"type": "Copy",
+												"dependsOn": [
+													{
+														"activity": "Set variable1",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "DelimitedTextSource",
+														"storeSettings": {
+															"type": "AzureBlobFSReadSettings",
+															"recursive": true,
+															"enablePartitionDiscovery": false
+														},
+														"formatSettings": {
+															"type": "DelimitedTextReadSettings"
+														}
+													},
+													"sink": {
+														"type": "DelimitedTextSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "DelimitedTextWriteSettings",
+															"quoteAllText": true,
+															"fileExtension": ".txt"
+														}
+													},
+													"enableStaging": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "ADLS_PARAM",
+														"type": "DatasetReference",
+														"parameters": {
+															"CONTAINER": "data",
+															"FOLDER": "Input",
+															"FILENAME": "Claim_Data_Table1.csv"
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "ADLS_PARAM",
+														"type": "DatasetReference",
+														"parameters": {
+															"CONTAINER": "data",
+															"FOLDER": "Output",
+															"FILENAME": "Claim_Data_Table1.csv"
+														}
+													}
+												]
+											}
+										]
+									}
+								}
+							],
+							"timeout": "0.12:00:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"file_exists": {
+						"type": "Boolean",
+						"defaultValue": false
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipeline_API')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1071,6 +1262,7 @@
 								"value": "@activity('Get Metadata1').output.childItems",
 								"type": "Expression"
 							},
+							"isSequential": true,
 							"activities": [
 								{
 									"name": "Copy data1_copy1",
@@ -1685,6 +1877,280 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_Finance_dim')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Finance"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLS_PARAM",
+								"type": "DatasetReference"
+							},
+							"name": "FINANCIALLOAN"
+						},
+						{
+							"dataset": {
+								"referenceName": "SQL_DB_FINANCE",
+								"type": "DatasetReference"
+							},
+							"name": "DIMFINANCIALLOAN"
+						},
+						{
+							"dataset": {
+								"referenceName": "SQL_DB_FINANCE",
+								"type": "DatasetReference"
+							},
+							"name": "maxfinkey"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQL_DB_FINANCE",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "SQL_DB_FINANCE",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						}
+					],
+					"transformations": [
+						{
+							"name": "lookup1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "split1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "derivedColumn3"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "join1"
+						},
+						{
+							"name": "derivedColumn4"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id as integer,",
+						"          address_state as string,",
+						"          application_type as string,",
+						"          emp_length as string,",
+						"          emp_title as string,",
+						"          grade as string,",
+						"          home_ownership as string,",
+						"          issue_date as date,",
+						"          last_credit_pull_date as date,",
+						"          last_payment_date as date,",
+						"          loan_status as string,",
+						"          next_payment_date as date,",
+						"          member_id as integer,",
+						"          purpose as string,",
+						"          sub_grade as string,",
+						"          term as string,",
+						"          verification_status as string,",
+						"          annual_income as double,",
+						"          dti as double,",
+						"          installment as double,",
+						"          int_rate as double,",
+						"          loan_amount as integer,",
+						"          total_acc as integer,",
+						"          total_payment as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> FINANCIALLOAN",
+						"source(output(",
+						"          finance_dim_key as integer,",
+						"          id as integer,",
+						"          address_state as string,",
+						"          application_type as string,",
+						"          emp_length as string,",
+						"          emp_title as string,",
+						"          grade as string,",
+						"          home_ownership as string,",
+						"          issue_date as date,",
+						"          last_credit_pull_date as date,",
+						"          last_payment_date as date,",
+						"          loan_status as string,",
+						"          next_payment_date as date,",
+						"          member_id as integer,",
+						"          purpose as string,",
+						"          sub_grade as string,",
+						"          term as string,",
+						"          verification_status as string,",
+						"          annual_income as decimal(18,0),",
+						"          dti as decimal(18,0),",
+						"          installment as integer,",
+						"          int_rate as decimal(18,0),",
+						"          loan_amount as decimal(18,0),",
+						"          total_acc as integer,",
+						"          total_payment as decimal(18,0),",
+						"          checksum_val as string,",
+						"          flag as string,",
+						"          eff_date as date,",
+						"          end_date as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT * FROM DBO.DIM_FINANCIAL_LOAN WHERE FLAG = \\'Y\\'',",
+						"     format: 'query') ~> DIMFINANCIALLOAN",
+						"source(output(",
+						"          max_surr_key as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'select coalesce(max(finance_dim_key),0) as max_surr_key from dbo.dim_financial_loan',",
+						"     format: 'query') ~> maxfinkey",
+						"FINANCIALLOAN, DIMFINANCIALLOAN lookup(FINANCIALLOAN@id == DIMFINANCIALLOAN@id,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookup1",
+						"lookup1 derive(INSERT_UPDATE_FLAG = iif(isNull(DIMFINANCIALLOAN@id), 'I', iif(not(isNull(DIMFINANCIALLOAN@id)) && :src_md5 != :tgt_md5, 'U','')),",
+						"          src_md5 := md5(FINANCIALLOAN@address_state,FINANCIALLOAN@application_type,FINANCIALLOAN@emp_length),",
+						"          tgt_md5 := md5(DIMFINANCIALLOAN@address_state,DIMFINANCIALLOAN@application_type,DIMFINANCIALLOAN@emp_length)) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          id = FINANCIALLOAN@id,",
+						"          address_state = FINANCIALLOAN@address_state,",
+						"          application_type = FINANCIALLOAN@application_type,",
+						"          emp_length = FINANCIALLOAN@emp_length,",
+						"          emp_title = FINANCIALLOAN@emp_title,",
+						"          grade = FINANCIALLOAN@grade,",
+						"          home_ownership = FINANCIALLOAN@home_ownership,",
+						"          issue_date = FINANCIALLOAN@issue_date,",
+						"          last_credit_pull_date = FINANCIALLOAN@last_credit_pull_date,",
+						"          last_payment_date = FINANCIALLOAN@last_payment_date,",
+						"          loan_status = FINANCIALLOAN@loan_status,",
+						"          next_payment_date = FINANCIALLOAN@next_payment_date,",
+						"          member_id = FINANCIALLOAN@member_id,",
+						"          purpose = FINANCIALLOAN@purpose,",
+						"          sub_grade = FINANCIALLOAN@sub_grade,",
+						"          term = FINANCIALLOAN@term,",
+						"          verification_status = FINANCIALLOAN@verification_status,",
+						"          annual_income = FINANCIALLOAN@annual_income,",
+						"          dti = FINANCIALLOAN@dti,",
+						"          installment = FINANCIALLOAN@installment,",
+						"          int_rate = FINANCIALLOAN@int_rate,",
+						"          loan_amount = FINANCIALLOAN@loan_amount,",
+						"          total_acc = FINANCIALLOAN@total_acc,",
+						"          total_payment = FINANCIALLOAN@total_payment,",
+						"          finance_dim_key,",
+						"          id = DIMFINANCIALLOAN@id,",
+						"          checksum_val,",
+						"          flag,",
+						"          eff_date,",
+						"          end_date,",
+						"          INSERT_UPDATE_FLAG",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 split(INSERT_UPDATE_FLAG == 'I' || INSERT_UPDATE_FLAG == 'U',",
+						"     INSERT_UPDATE_FLAG == 'U',",
+						"     disjoint: false) ~> split1@(insert, update)",
+						"split1@insert derive(ins_flag = 'Y',",
+						"          eff_date = currentDate()) ~> derivedColumn2",
+						"split1@update derive(upd_flag = 'N',",
+						"          end_date = currentDate()) ~> derivedColumn3",
+						"derivedColumn2 keyGenerate(output(fin_dim_key as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"derivedColumn3 alterRow(updateIf(1==1)) ~> alterRow1",
+						"surrogateKey1, maxfinkey join(1 == 1,",
+						"     joinType:'cross',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 derive(dim_key = fin_dim_key + max_surr_key) ~> derivedColumn4",
+						"derivedColumn4 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id,",
+						"          address_state,",
+						"          application_type,",
+						"          emp_length,",
+						"          emp_title,",
+						"          grade,",
+						"          home_ownership,",
+						"          issue_date,",
+						"          last_credit_pull_date,",
+						"          last_payment_date,",
+						"          loan_status,",
+						"          next_payment_date,",
+						"          member_id,",
+						"          purpose,",
+						"          sub_grade,",
+						"          term,",
+						"          verification_status,",
+						"          annual_income,",
+						"          dti,",
+						"          installment,",
+						"          int_rate,",
+						"          loan_amount,",
+						"          total_acc,",
+						"          total_payment,",
+						"          finance_dim_key = dim_key,",
+						"          flag,",
+						"          eff_date",
+						"     )) ~> sink1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:false,",
+						"     updateable:true,",
+						"     upsertable:false,",
+						"     keys:['finance_dim_key'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          finance_dim_key,",
+						"          flag,",
+						"          end_date",
+						"     )) ~> sink2"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflow_MERGE_MULTIPLE_ROWS_TO_SINGLE')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -2177,136 +2643,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_SPLIT_SINGLEROW_MULTIPLE_ROW')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ADLS_PARAM",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "SQLDB_CLOUD",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "flatten1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          project_name as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"source1 derive(project_name = split(project_name,\",\")) ~> derivedColumn1",
-						"derivedColumn1 foldDown(unroll(project_name),",
-						"     mapColumn(",
-						"          name,",
-						"          project_name",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten1",
-						"flatten1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     recreate:true,",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline_EXECUTE_DATAFLOW')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow_SCD2_NEW",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"source1": {
-										"CONTAINER": "data",
-										"FOLDER": "Synapse",
-										"FILENAME": "INCIDENT.csv"
-									},
-									"source2": {
-										"SCHEMA_NAME": "dbo",
-										"TABLE_NAME": "PROJECT_INCIDENT_DIM"
-									},
-									"maxsurr": {
-										"SCHEMA_NAME": "dbo",
-										"TABLE_NAME": "PROJECT_INCIDENT_DIM"
-									},
-									"sink1": {
-										"SCHEMA_NAME": "dbo",
-										"TABLE_NAME": "PROJECT_INCIDENT_DIM"
-									},
-									"sink2": {
-										"SCHEMA_NAME": "dbo",
-										"TABLE_NAME": "PROJECT_INCIDENT_DIM"
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow_SCD2_NEW')]"
-			]
 		}
 	]
 }
