@@ -20,6 +20,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "DIMFINANCIALLOAN"
+				},
+				{
+					"dataset": {
+						"referenceName": "SQL_DB_FINANCE",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
 				}
 			],
 			"sinks": [
@@ -130,6 +137,11 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: 'SELECT * FROM DBO.DIM_FINANCIAL_LOAN WHERE FLAG = \\'Y\\'',",
 				"     format: 'query') ~> DIMFINANCIALLOAN",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select coalesce(max(finance_dim_key),0) as max_surr_key from dbo.dim_financial_loan',",
+				"     format: 'query') ~> source2",
 				"FINANCIALLOAN, DIMFINANCIALLOAN lookup(FINANCIALLOAN@id == DIMFINANCIALLOAN@id,",
 				"     multiple: false,",
 				"     pickup: 'any',",
