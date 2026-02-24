@@ -26,7 +26,7 @@
 						"referenceName": "SQL_DB_FINANCE",
 						"type": "DatasetReference"
 					},
-					"name": "source2"
+					"name": "maxfinkey"
 				}
 			],
 			"sinks": [
@@ -69,6 +69,12 @@
 				},
 				{
 					"name": "alterRow1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "derivedColumn4"
 				}
 			],
 			"scriptLines": [
@@ -137,11 +143,14 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: 'SELECT * FROM DBO.DIM_FINANCIAL_LOAN WHERE FLAG = \\'Y\\'',",
 				"     format: 'query') ~> DIMFINANCIALLOAN",
-				"source(allowSchemaDrift: true,",
+				"source(output(",
+				"          max_surr_key as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: 'select coalesce(max(finance_dim_key),0) as max_surr_key from dbo.dim_financial_loan',",
-				"     format: 'query') ~> source2",
+				"     format: 'query') ~> maxfinkey",
 				"FINANCIALLOAN, DIMFINANCIALLOAN lookup(FINANCIALLOAN@id == DIMFINANCIALLOAN@id,",
 				"     multiple: false,",
 				"     pickup: 'any',",
@@ -196,7 +205,13 @@
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
 				"derivedColumn3 alterRow(updateIf(1==1)) ~> alterRow1",
-				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"surrogateKey1, maxfinkey join(1 == 1,",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 derive(dim_key = finance_dim_key + max_surr_key) ~> derivedColumn4",
+				"derivedColumn4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
 				"     insertable:true,",
