@@ -28,6 +28,10 @@
 								"schema_name": "dbo",
 								"table_name": "dim_financial_loan"
 							},
+							"maxfinkey": {
+								"schema_name": "dbo",
+								"table_name": "dim_financial_loan"
+							},
 							"sink1": {
 								"schema_name": "dbo",
 								"table_name": "dim_financial_loan"
