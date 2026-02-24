@@ -22,7 +22,22 @@
 					"name": "DIMFINANCIALLOAN"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SQL_DB_FINANCE",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "SQL_DB_FINANCE",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
 			"transformations": [
 				{
 					"name": "lookup1"
@@ -32,6 +47,21 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "surrogateKey1"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -142,7 +172,73 @@
 				"          INSERT_UPDATE_FLAG",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1"
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 split(INSERT_UPDATE_FLAG == 'I' || INSERT_UPDATE_FLAG == 'U',",
+				"     INSERT_UPDATE_FLAG == 'U',",
+				"     disjoint: false) ~> split1@(insert, update)",
+				"split1@insert derive(ins_flag = 'Y',",
+				"          eff_date = currentDate()) ~> derivedColumn2",
+				"split1@update derive(upd_flag = 'N',",
+				"          end_date = currentDate()) ~> derivedColumn3",
+				"derivedColumn2 keyGenerate(output(finance_dim_key as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"derivedColumn3 alterRow(updateIf(1==1)) ~> alterRow1",
+				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id,",
+				"          address_state,",
+				"          application_type,",
+				"          emp_length,",
+				"          emp_title,",
+				"          grade,",
+				"          home_ownership,",
+				"          issue_date,",
+				"          last_credit_pull_date,",
+				"          last_payment_date,",
+				"          loan_status,",
+				"          next_payment_date,",
+				"          member_id,",
+				"          purpose,",
+				"          sub_grade,",
+				"          term,",
+				"          verification_status,",
+				"          annual_income,",
+				"          dti,",
+				"          installment,",
+				"          int_rate,",
+				"          loan_amount,",
+				"          total_acc,",
+				"          total_payment,",
+				"          finance_dim_key,",
+				"          flag,",
+				"          eff_date",
+				"     )) ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['finance_dim_key'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          finance_dim_key,",
+				"          flag,",
+				"          end_date",
+				"     )) ~> sink2"
 			]
 		}
 	}
