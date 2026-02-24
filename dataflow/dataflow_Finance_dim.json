@@ -1,0 +1,58 @@
+{
+	"name": "dataflow_Finance_dim",
+	"properties": {
+		"folder": {
+			"name": "Finance"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ADLS_PARAM",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"name": "source2"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          address_state as string,",
+				"          application_type as string,",
+				"          emp_length as string,",
+				"          emp_title as string,",
+				"          grade as string,",
+				"          home_ownership as string,",
+				"          issue_date as date,",
+				"          last_credit_pull_date as date,",
+				"          last_payment_date as date,",
+				"          loan_status as string,",
+				"          next_payment_date as date,",
+				"          member_id as integer,",
+				"          purpose as string,",
+				"          sub_grade as string,",
+				"          term as string,",
+				"          verification_status as string,",
+				"          annual_income as double,",
+				"          dti as double,",
+				"          installment as double,",
+				"          int_rate as double,",
+				"          loan_amount as integer,",
+				"          total_acc as integer,",
+				"          total_payment as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> source2"
+			]
+		}
+	}
+}
