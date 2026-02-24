@@ -246,7 +246,7 @@
 				"          loan_amount,",
 				"          total_acc,",
 				"          total_payment,",
-				"          finance_dim_key,",
+				"          finance_dim_key = dim_key,",
 				"          flag,",
 				"          eff_date",
 				"     )) ~> sink1",
