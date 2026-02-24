@@ -16,29 +16,29 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow_SCD2_NEW",
+						"referenceName": "dataflow_Finance_dim",
 						"type": "DataFlowReference",
 						"datasetParameters": {
-							"source1": {
+							"FINANCIALLOAN": {
 								"CONTAINER": "data",
-								"FOLDER": "Synapse",
-								"FILENAME": "INCIDENT.csv"
+								"FOLDER": "Finance",
+								"FILENAME": "financial_loan.csv"
 							},
-							"source2": {
-								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
+							"DIMFINANCIALLOAN": {
+								"schema_name": "dbo",
+								"table_name": "dim_financial_loan"
 							},
-							"maxsurr": {
-								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
+							"maxfinkey": {
+								"schema_name": "dbo",
+								"table_name": "dim_financial_loan"
 							},
 							"sink1": {
-								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
+								"schema_name": "dbo",
+								"table_name": "dim_financial_loan"
 							},
 							"sink2": {
-								"SCHEMA_NAME": "dbo",
-								"TABLE_NAME": "PROJECT_INCIDENT_DIM"
+								"schema_name": "dbo",
+								"table_name": "dim_financial_loan"
 							}
 						}
 					},
